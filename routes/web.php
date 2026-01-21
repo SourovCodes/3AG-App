@@ -25,15 +25,18 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/flash-test/{type}', function (string $type) {
     $messages = [
-        'success' => 'Operation completed successfully!',
-        'error' => 'Something went wrong!',
-        'warning' => 'Please proceed with caution.',
-        'info' => 'Here is some useful information.',
+        'success' => ['message' => 'Operation completed successfully!', 'description' => 'Your changes have been saved.'],
+        'error' => ['message' => 'Something went wrong!', 'description' => 'Please try again or contact support.'],
+        'warning' => ['message' => 'Please proceed with caution.'], // description is optional
+        'info' => ['message' => 'Here is some useful information.'], // description is optional
     ];
+
+    $toast = $messages[$type] ?? ['message' => 'Test message'];
 
     Inertia::flash('toast', [
         'type' => $type,
-        'message' => $messages[$type] ?? 'Test message',
+        'message' => $toast['message'],
+        'description' => $toast['description'] ?? null,
     ]);
 
     return back();

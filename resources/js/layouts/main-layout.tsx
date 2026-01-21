@@ -14,7 +14,9 @@ function showToast(data: NonNullable<FlashData['toast']>) {
         info: toast.info,
     };
 
-    toastFn[data.type](data.message);
+    toastFn[data.type](data.message, {
+        description: data.description,
+    });
 }
 
 function useFlashToast() {
