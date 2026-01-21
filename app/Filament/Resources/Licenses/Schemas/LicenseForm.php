@@ -49,10 +49,13 @@ class LicenseForm
                         Grid::make(2)
                             ->schema([
                                 Select::make('subscription_id')
-                                    ->relationship('subscription', 'name')
+                                    ->relationship('subscription', 'type')
                                     ->searchable()
                                     ->preload()
-                                    ->helperText('Optional - link to Stripe subscription'),
+                                    ->helperText('Optional - link to Stripe subscription')
+                                    ->getOptionLabelFromRecordUsing(fn ($record) => 
+                                        $record->user->email . ' - ' . ucfirst($record->type) . ' (' . $record->stripe_status . ')'
+                                    ),
                                 TextInput::make('domain_limit')
                                     ->numeric()
                                     ->minValue(1)
