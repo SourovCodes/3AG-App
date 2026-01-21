@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PasswordInput } from '@/components/ui/password-input';
 
 export default function Register() {
     return (
@@ -54,10 +55,9 @@ export default function Register() {
 
                                         <div className="space-y-2">
                                             <Label htmlFor="password">Password</Label>
-                                            <Input
+                                            <PasswordInput
                                                 id="password"
                                                 name="password"
-                                                type="password"
                                                 placeholder="••••••••"
                                                 autoComplete="new-password"
                                                 aria-invalid={!!errors.password}
@@ -67,10 +67,9 @@ export default function Register() {
 
                                         <div className="space-y-2">
                                             <Label htmlFor="password_confirmation">Confirm Password</Label>
-                                            <Input
+                                            <PasswordInput
                                                 id="password_confirmation"
                                                 name="password_confirmation"
-                                                type="password"
                                                 placeholder="••••••••"
                                                 autoComplete="new-password"
                                                 aria-invalid={!!errors.password_confirmation}

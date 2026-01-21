@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PasswordInput } from '@/components/ui/password-input';
 
 export default function Login() {
     return (
@@ -49,10 +50,9 @@ export default function Login() {
                                                     Forgot password?
                                                 </Link>
                                             </div>
-                                            <Input
+                                            <PasswordInput
                                                 id="password"
                                                 name="password"
-                                                type="password"
                                                 placeholder="••••••••"
                                                 autoComplete="current-password"
                                                 aria-invalid={!!errors.password}
