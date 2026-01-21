@@ -3,7 +3,7 @@ import { Head, Link } from '@inertiajs/react';
 import { Footer } from '@/components/footer';
 import { Navbar } from '@/components/navbar';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function Home() {
     return (
@@ -13,7 +13,7 @@ export default function Home() {
                 <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
             </Head>
 
-            <div className="bg-background min-h-screen">
+            <div className="min-h-screen bg-background">
                 <Navbar />
 
                 {/* Hero Section */}
@@ -21,12 +21,11 @@ export default function Home() {
                     <div className="container mx-auto px-4">
                         <div className="mx-auto max-w-3xl text-center">
                             <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-                                Manage Your Software Licenses with{' '}
-                                <span className="text-primary">Confidence</span>
+                                Manage Your Software Licenses with <span className="text-primary">Confidence</span>
                             </h1>
-                            <p className="text-muted-foreground mb-8 text-lg sm:text-xl">
-                                The complete platform for software licensing, subscription management, and product
-                                distribution. Built for developers, designed for scale.
+                            <p className="mb-8 text-lg text-muted-foreground sm:text-xl">
+                                The complete platform for software licensing, subscription management, and product distribution. Built for developers,
+                                designed for scale.
                             </p>
                             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
                                 <Link href="/register">
@@ -45,8 +44,8 @@ export default function Home() {
 
                     {/* Background decoration */}
                     <div className="absolute inset-0 -z-10 overflow-hidden">
-                        <div className="bg-primary/5 absolute -top-40 right-0 h-80 w-80 rounded-full blur-3xl" />
-                        <div className="bg-primary/5 absolute -bottom-40 left-0 h-80 w-80 rounded-full blur-3xl" />
+                        <div className="absolute -top-40 right-0 h-80 w-80 rounded-full bg-primary/5 blur-3xl" />
+                        <div className="absolute -bottom-40 left-0 h-80 w-80 rounded-full bg-primary/5 blur-3xl" />
                     </div>
                 </section>
 
@@ -55,7 +54,7 @@ export default function Home() {
                     <div className="container mx-auto px-4">
                         <div className="mb-12 text-center">
                             <h2 className="mb-4 text-3xl font-bold">Everything You Need</h2>
-                            <p className="text-muted-foreground mx-auto max-w-2xl">
+                            <p className="mx-auto max-w-2xl text-muted-foreground">
                                 Powerful features to help you manage your software business from start to finish.
                             </p>
                         </div>
@@ -63,13 +62,8 @@ export default function Home() {
                         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                             <Card>
                                 <CardHeader>
-                                    <div className="bg-primary/10 text-primary mb-4 flex h-12 w-12 items-center justify-center rounded-lg">
-                                        <svg
-                                            className="h-6 w-6"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
+                                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path
                                                 strokeLinecap="round"
                                                 strokeLinejoin="round"
@@ -80,21 +74,16 @@ export default function Home() {
                                     </div>
                                     <CardTitle>License Management</CardTitle>
                                     <CardDescription>
-                                        Generate, validate, and manage software licenses with ease. Support for
-                                        various license types and activation limits.
+                                        Generate, validate, and manage software licenses with ease. Support for various license types and activation
+                                        limits.
                                     </CardDescription>
                                 </CardHeader>
                             </Card>
 
                             <Card>
                                 <CardHeader>
-                                    <div className="bg-primary/10 text-primary mb-4 flex h-12 w-12 items-center justify-center rounded-lg">
-                                        <svg
-                                            className="h-6 w-6"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
+                                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path
                                                 strokeLinecap="round"
                                                 strokeLinejoin="round"
@@ -105,21 +94,16 @@ export default function Home() {
                                     </div>
                                     <CardTitle>Subscription Billing</CardTitle>
                                     <CardDescription>
-                                        Integrated subscription management with Stripe. Handle recurring payments,
-                                        upgrades, and downgrades seamlessly.
+                                        Integrated subscription management with Stripe. Handle recurring payments, upgrades, and downgrades
+                                        seamlessly.
                                     </CardDescription>
                                 </CardHeader>
                             </Card>
 
                             <Card>
                                 <CardHeader>
-                                    <div className="bg-primary/10 text-primary mb-4 flex h-12 w-12 items-center justify-center rounded-lg">
-                                        <svg
-                                            className="h-6 w-6"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
+                                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path
                                                 strokeLinecap="round"
                                                 strokeLinejoin="round"
@@ -130,21 +114,16 @@ export default function Home() {
                                     </div>
                                     <CardTitle>Package Distribution</CardTitle>
                                     <CardDescription>
-                                        Securely distribute your software packages. Version control, automatic
-                                        updates, and download tracking included.
+                                        Securely distribute your software packages. Version control, automatic updates, and download tracking
+                                        included.
                                     </CardDescription>
                                 </CardHeader>
                             </Card>
 
                             <Card>
                                 <CardHeader>
-                                    <div className="bg-primary/10 text-primary mb-4 flex h-12 w-12 items-center justify-center rounded-lg">
-                                        <svg
-                                            className="h-6 w-6"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
+                                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path
                                                 strokeLinecap="round"
                                                 strokeLinejoin="round"
@@ -155,21 +134,15 @@ export default function Home() {
                                     </div>
                                     <CardTitle>Analytics Dashboard</CardTitle>
                                     <CardDescription>
-                                        Get insights into your software usage. Track activations, monitor revenue,
-                                        and understand your customers.
+                                        Get insights into your software usage. Track activations, monitor revenue, and understand your customers.
                                     </CardDescription>
                                 </CardHeader>
                             </Card>
 
                             <Card>
                                 <CardHeader>
-                                    <div className="bg-primary/10 text-primary mb-4 flex h-12 w-12 items-center justify-center rounded-lg">
-                                        <svg
-                                            className="h-6 w-6"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
+                                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path
                                                 strokeLinecap="round"
                                                 strokeLinejoin="round"
@@ -180,21 +153,15 @@ export default function Home() {
                                     </div>
                                     <CardTitle>Secure by Default</CardTitle>
                                     <CardDescription>
-                                        Built with security in mind. Encrypted license keys, secure API endpoints,
-                                        and audit logging.
+                                        Built with security in mind. Encrypted license keys, secure API endpoints, and audit logging.
                                     </CardDescription>
                                 </CardHeader>
                             </Card>
 
                             <Card>
                                 <CardHeader>
-                                    <div className="bg-primary/10 text-primary mb-4 flex h-12 w-12 items-center justify-center rounded-lg">
-                                        <svg
-                                            className="h-6 w-6"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
+                                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path
                                                 strokeLinecap="round"
                                                 strokeLinejoin="round"
@@ -205,8 +172,7 @@ export default function Home() {
                                     </div>
                                     <CardTitle>Developer API</CardTitle>
                                     <CardDescription>
-                                        RESTful API for integration with your applications. Validate licenses,
-                                        manage subscriptions, and more.
+                                        RESTful API for integration with your applications. Validate licenses, manage subscriptions, and more.
                                     </CardDescription>
                                 </CardHeader>
                             </Card>
@@ -217,13 +183,10 @@ export default function Home() {
                 {/* CTA Section */}
                 <section className="py-24">
                     <div className="container mx-auto px-4">
-                        <div className="bg-primary rounded-2xl p-8 text-center md:p-16">
-                            <h2 className="text-primary-foreground mb-4 text-3xl font-bold md:text-4xl">
-                                Ready to Get Started?
-                            </h2>
-                            <p className="text-primary-foreground/80 mx-auto mb-8 max-w-2xl">
-                                Join thousands of developers who trust us to manage their software licensing. Start
-                                your free trial today.
+                        <div className="rounded-2xl bg-primary p-8 text-center md:p-16">
+                            <h2 className="mb-4 text-3xl font-bold text-primary-foreground md:text-4xl">Ready to Get Started?</h2>
+                            <p className="mx-auto mb-8 max-w-2xl text-primary-foreground/80">
+                                Join thousands of developers who trust us to manage their software licensing. Start your free trial today.
                             </p>
                             <Link href="/register">
                                 <Button size="lg" variant="secondary">
