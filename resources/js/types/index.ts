@@ -5,6 +5,6 @@ import type { Auth } from './auth';
 
 export interface SharedData {
     name: string;
-    auth: Auth;
+    auth: Auth | null;
     [key: string]: unknown;
 }
