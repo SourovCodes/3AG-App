@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Models\License;
+use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Laravel\Cashier\Events\WebhookReceived;
 
@@ -36,6 +37,9 @@ class SyncLicenseStatusOnSubscriptionChange implements ShouldQueue
             return;
         }
 
+        // Extract current_period_end from webhook payload
+        $currentPeriodEnd = $this->extractCurrentPeriodEnd($event->payload);
+
         // Find all licenses linked to this Stripe subscription
         $licenses = License::whereHas('subscription', function ($query) use ($stripeSubscriptionId) {
             $query->where('stripe_id', $stripeSubscriptionId);
@@ -43,7 +47,7 @@ class SyncLicenseStatusOnSubscriptionChange implements ShouldQueue
 
         foreach ($licenses as $license) {
             $license->refresh(); // Ensure we have fresh subscription data
-            $license->syncStatusFromSubscription();
+            $license->syncStatusFromSubscription($currentPeriodEnd);
         }
     }
 
@@ -62,6 +66,32 @@ class SyncLicenseStatusOnSubscriptionChange implements ShouldQueue
         // For invoice events, the subscription ID is a property
         if (str_starts_with($payload['type'], 'invoice.')) {
             return $object['subscription'] ?? null;
+        }
+
+        return null;
+    }
+
+    /**
+     * Extract current_period_end timestamp from the webhook payload.
+     */
+    private function extractCurrentPeriodEnd(array $payload): ?Carbon
+    {
+        $object = $payload['data']['object'] ?? [];
+
+        // For subscription events, get from items or top level
+        if (str_starts_with($payload['type'], 'customer.subscription.')) {
+            $periodEnd = $object['items']['data'][0]['current_period_end']
+                ?? $object['current_period_end']
+                ?? null;
+
+            return $periodEnd ? Carbon::createFromTimestamp($periodEnd) : null;
+        }
+
+        // For invoice events, get from lines (subscription line items)
+        if (str_starts_with($payload['type'], 'invoice.')) {
+            $periodEnd = $object['lines']['data'][0]['period']['end'] ?? null;
+
+            return $periodEnd ? Carbon::createFromTimestamp($periodEnd) : null;
         }
 
         return null;

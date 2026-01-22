@@ -120,8 +120,10 @@ class License extends Model
 
     /**
      * Sync license status and expiry based on subscription state.
+     *
+     * @param  \Carbon\Carbon|null  $expiresAt  The subscription's current_period_end (pass from webhook to avoid API call)
      */
-    public function syncStatusFromSubscription(): void
+    public function syncStatusFromSubscription(?\Carbon\Carbon $expiresAt = null): void
     {
         if (! $this->subscription) {
             return;
@@ -129,8 +131,10 @@ class License extends Model
 
         $subscription = $this->subscription;
 
-        // Update expires_at from Stripe subscription's current_period_end
-        $this->syncExpiryFromSubscription();
+        // Update expires_at if provided from webhook
+        if ($expiresAt !== null) {
+            $this->update(['expires_at' => $expiresAt]);
+        }
 
         if ($subscription->canceled() || $subscription->ended()) {
             $this->cancel();
@@ -142,35 +146,6 @@ class License extends Model
         } else {
             // past_due, unpaid, incomplete, etc.
             $this->suspend();
-        }
-    }
-
-    /**
-     * Sync license expiry date from Stripe subscription's current_period_end.
-     */
-    public function syncExpiryFromSubscription(): void
-    {
-        if (! $this->subscription || ! $this->subscription->stripe_id) {
-            return;
-        }
-
-        try {
-            $stripeSubscription = $this->subscription->asStripeSubscription();
-
-            // current_period_end may be at top level or in items
-            $periodEnd = $stripeSubscription->current_period_end
-                ?? $stripeSubscription->items->data[0]->current_period_end
-                ?? null;
-
-            if ($periodEnd !== null) {
-                $this->update(['expires_at' => \Carbon\Carbon::createFromTimestamp($periodEnd)]);
-            }
-        } catch (\Exception $e) {
-            // Log but don't fail - expiry will be updated on next sync
-            \Illuminate\Support\Facades\Log::warning('Failed to sync license expiry from Stripe', [
-                'license_id' => $this->id,
-                'error' => $e->getMessage(),
-            ]);
         }
     }
 
