@@ -17,12 +17,8 @@ class LicenseActivationResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
             'domain' => $this->domain,
-            'is_active' => $this->isActive(),
             'activated_at' => $this->activated_at?->toISOString(),
-            'deactivated_at' => $this->deactivated_at?->toISOString(),
-            'last_checked_at' => $this->last_checked_at?->toISOString(),
         ];
     }
 }

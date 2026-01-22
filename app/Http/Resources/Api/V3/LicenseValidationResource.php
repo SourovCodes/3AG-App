@@ -17,23 +17,13 @@ class LicenseValidationResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'license_key' => $this->license_key,
-            'status' => $this->status->value,
-            'status_label' => $this->status->getLabel(),
-            'is_active' => $this->isActive(),
-            'domain_limit' => $this->domain_limit,
-            'active_domains' => $this->activeActivations()->count(),
-            'remaining_activations' => $this->getRemainingActivations(),
+            'valid' => $this->isActive(),
             'expires_at' => $this->expires_at?->toISOString(),
-            'product' => [
-                'name' => $this->product->name,
-                'slug' => $this->product->slug,
-                'version' => $this->product->version,
-            ],
-            'package' => [
-                'name' => $this->package->name,
-                'slug' => $this->package->slug,
-            ],
+            'domain_limit' => $this->domain_limit,
+            'domains_used' => $this->activeActivations()->count(),
+            'product' => $this->product->name,
+            'package' => $this->package->name,
+            'version' => $this->product->version,
         ];
     }
 }

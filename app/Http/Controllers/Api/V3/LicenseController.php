@@ -7,7 +7,6 @@ use App\Http\Requests\Api\V3\ActivateLicenseRequest;
 use App\Http\Requests\Api\V3\CheckLicenseRequest;
 use App\Http\Requests\Api\V3\DeactivateLicenseRequest;
 use App\Http\Requests\Api\V3\ValidateLicenseRequest;
-use App\Http\Resources\Api\V3\LicenseActivationResource;
 use App\Http\Resources\Api\V3\LicenseValidationResource;
 use App\Models\License;
 use Illuminate\Http\JsonResponse;
@@ -33,7 +32,7 @@ class LicenseController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => new LicenseValidationResource($license),
+            'license' => new LicenseValidationResource($license),
         ]);
     }
 
@@ -75,10 +74,7 @@ class LicenseController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'License already activated on this domain.',
-                    'data' => [
-                        'activation' => new LicenseActivationResource($existingActivation),
-                        'license' => new LicenseValidationResource($license->fresh(['product', 'package'])),
-                    ],
+                    'license' => new LicenseValidationResource($license),
                 ]);
             }
 
@@ -88,10 +84,7 @@ class LicenseController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'License reactivated on this domain.',
-                'data' => [
-                    'activation' => new LicenseActivationResource($existingActivation->fresh()),
-                    'license' => new LicenseValidationResource($license->fresh(['product', 'package'])),
-                ],
+                'license' => new LicenseValidationResource($license->fresh(['product', 'package'])),
             ]);
         }
 
@@ -117,10 +110,7 @@ class LicenseController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'License activated successfully.',
-            'data' => [
-                'activation' => new LicenseActivationResource($activation),
-                'license' => new LicenseValidationResource($license->fresh(['product', 'package'])),
-            ],
+            'license' => new LicenseValidationResource($license->fresh(['product', 'package'])),
         ], 201);
     }
 
@@ -158,9 +148,6 @@ class LicenseController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'License deactivated successfully.',
-            'data' => [
-                'activation' => new LicenseActivationResource($activation->fresh()),
-            ],
         ]);
     }
 
@@ -189,11 +176,8 @@ class LicenseController extends Controller
         if (! $activation) {
             return response()->json([
                 'success' => true,
-                'data' => [
-                    'is_active' => false,
-                    'license_valid' => $license->isActive(),
-                    'message' => 'License is not activated on this domain.',
-                ],
+                'activated' => false,
+                'license_valid' => $license->isActive(),
             ]);
         }
 
@@ -203,12 +187,9 @@ class LicenseController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => [
-                'is_active' => true,
-                'license_valid' => $license->isActive(),
-                'activation' => new LicenseActivationResource($activation),
-                'license' => new LicenseValidationResource($license),
-            ],
+            'activated' => true,
+            'license_valid' => $license->isActive(),
+            'license' => new LicenseValidationResource($license),
         ]);
     }
 
