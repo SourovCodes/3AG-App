@@ -15,7 +15,9 @@ createServer((page) =>
         resolve: (name) =>
             resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')).then((page) => {
                 const pageComponent = page as { default: { layout?: unknown } };
-                pageComponent.default.layout ??= (page: React.ReactNode) => <MainLayout>{page}</MainLayout>;
+                if (!('layout' in pageComponent.default)) {
+                    pageComponent.default.layout = (page: React.ReactNode) => <MainLayout>{page}</MainLayout>;
+                }
                 return page;
             }),
         setup: ({ App, props }) => <App {...props} />,

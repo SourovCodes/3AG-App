@@ -2,6 +2,11 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Dashboard\DashboardController;
+use App\Http\Controllers\Dashboard\LicenseController;
+use App\Http\Controllers\Dashboard\ProfileController;
+use App\Http\Controllers\Dashboard\SettingsController;
+use App\Http\Controllers\Dashboard\SubscriptionController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -27,6 +32,31 @@ Route::middleware('guest')->group(function () {
 // Authenticated routes
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
+
+    // Dashboard routes
+    Route::prefix('dashboard')->name('dashboard.')->group(function () {
+        Route::get('/', [DashboardController::class, 'index'])->name('index');
+
+        // Subscriptions
+        Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
+        Route::post('/subscriptions/{subscription}/cancel', [SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
+        Route::post('/subscriptions/{subscription}/resume', [SubscriptionController::class, 'resume'])->name('subscriptions.resume');
+
+        // Licenses
+        Route::get('/licenses', [LicenseController::class, 'index'])->name('licenses.index');
+        Route::get('/licenses/{license}', [LicenseController::class, 'show'])->name('licenses.show');
+        Route::post('/licenses/{license}/deactivate-all', [LicenseController::class, 'deactivateAll'])->name('licenses.deactivate-all');
+        Route::delete('/licenses/{license}/activations/{activation}', [LicenseController::class, 'deactivateActivation'])->name('licenses.activations.destroy');
+
+        // Profile
+        Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+        Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+
+        // Settings
+        Route::get('/settings', [SettingsController::class, 'show'])->name('settings.show');
+        Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
+    });
 });
 
 Route::get('/flash-test/{type}', function (string $type) {
