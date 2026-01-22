@@ -244,13 +244,17 @@ class ProductController extends Controller
                 'description' => 'Your subscription has been changed to '.$package->name.'.',
             ]);
         } catch (IncompletePayment $e) {
-            // Handle SCA/3D Secure - redirect to payment confirmation
+            // Handle SCA/3D Secure - redirect to Cashier's payment confirmation page
             Log::warning('Subscription swap requires payment confirmation', [
                 'subscription_id' => $currentSubscription->id,
                 'user_id' => $user->id,
+                'payment_id' => $e->payment->id,
             ]);
 
-            return redirect($e->payment->hostedInvoiceUrl());
+            return redirect()->route('cashier.payment', [
+                'id' => $e->payment->id,
+                'redirect' => route('dashboard.subscriptions.index'),
+            ]);
         } catch (\Exception $e) {
             Log::error('Failed to swap subscription', [
                 'subscription_id' => $currentSubscription->id,

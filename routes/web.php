@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Dashboard\DashboardController;
+use App\Http\Controllers\Dashboard\InvoiceController;
 use App\Http\Controllers\Dashboard\LicenseController;
 use App\Http\Controllers\Dashboard\ProfileController;
 use App\Http\Controllers\Dashboard\SettingsController;
@@ -48,6 +49,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/licenses/{license}', [LicenseController::class, 'show'])->name('licenses.show');
         Route::post('/licenses/{license}/deactivate-all', [LicenseController::class, 'deactivateAll'])->name('licenses.deactivate-all');
         Route::delete('/licenses/{license}/activations/{activation}', [LicenseController::class, 'deactivateActivation'])->name('licenses.activations.destroy');
+
+        // Invoices
+        Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
 
         // Profile
         Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');

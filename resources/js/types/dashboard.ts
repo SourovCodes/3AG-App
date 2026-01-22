@@ -75,3 +75,11 @@ export interface DashboardOverview {
     recent_licenses: License[];
     subscriptions: Subscription[];
 }
+
+export interface Invoice {
+    id: string;
+    date: string;
+    total: string;
+    status: string;
+    hosted_invoice_url: string | null;
+}

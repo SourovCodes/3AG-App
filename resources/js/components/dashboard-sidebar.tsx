@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { CreditCard, Home, Key, LayoutDashboard, LogOut, Settings, User } from 'lucide-react';
+import { CreditCard, Home, Key, LayoutDashboard, LogOut, Receipt, Settings, User } from 'lucide-react';
 
 import {
     Sidebar,
@@ -30,6 +30,11 @@ const navigationItems = [
         title: 'Licenses',
         url: '/dashboard/licenses',
         icon: Key,
+    },
+    {
+        title: 'Invoices',
+        url: '/dashboard/invoices',
+        icon: Receipt,
     },
     {
         title: 'Profile',
