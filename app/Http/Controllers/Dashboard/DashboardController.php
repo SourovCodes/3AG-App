@@ -11,6 +11,7 @@ use App\Models\LicenseActivation;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Laravel\Cashier\Cashier;
 
 class DashboardController extends Controller
 {
@@ -29,6 +30,17 @@ class DashboardController extends Controller
             ->latest()
             ->get();
 
+        // Calculate credit balance
+        // In Stripe, negative balance = customer has credit, positive = customer owes money
+        $creditBalance = '$0.00';
+        if ($user->hasStripeId()) {
+            $rawBalance = $user->rawBalance(); // In cents, negative = credit
+            if ($rawBalance < 0) {
+                // Customer has credit - show as positive
+                $creditBalance = Cashier::formatAmount(abs($rawBalance));
+            }
+        }
+
         // Calculate stats
         $stats = [
             'total_subscriptions' => $user->subscriptions()->count(),
@@ -39,6 +51,7 @@ class DashboardController extends Controller
                 ->whereHas('license', fn ($q) => $q->where('user_id', $user->id))
                 ->whereNull('deactivated_at')
                 ->count(),
+            'credit_balance' => $creditBalance,
         ];
 
         return Inertia::render('dashboard/index', [

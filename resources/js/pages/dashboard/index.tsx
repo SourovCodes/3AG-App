@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { CreditCard, ExternalLink, Key, RefreshCw, TrendingUp } from 'lucide-react';
+import { CreditCard, ExternalLink, Key, RefreshCw, Wallet } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -96,14 +96,12 @@ export default function Overview({ stats, recent_licenses, subscriptions }: Over
 
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-sm font-medium">Account Status</CardTitle>
-                            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                            <CardTitle className="text-sm font-medium">Credit Balance</CardTitle>
+                            <Wallet className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">{stats.active_subscriptions > 0 ? 'Active' : 'Free'}</div>
-                            <p className="text-xs text-muted-foreground">
-                                {stats.active_subscriptions > 0 ? 'Subscribed' : 'No active subscriptions'}
-                            </p>
+                            <div className="text-2xl font-bold">{stats.credit_balance}</div>
+                            <p className="text-xs text-muted-foreground">applied to future invoices</p>
                         </CardContent>
                     </Card>
                 </div>

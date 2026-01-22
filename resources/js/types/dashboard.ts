@@ -67,6 +67,7 @@ export interface DashboardStats {
     total_licenses: number;
     active_licenses: number;
     total_activations: number;
+    credit_balance: string;
 }
 
 export interface DashboardOverview {
