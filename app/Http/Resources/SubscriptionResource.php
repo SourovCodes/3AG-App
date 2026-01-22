@@ -19,12 +19,8 @@ class SubscriptionResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        // Find package by stripe_price (either monthly or yearly)
-        $package = Package::query()
-            ->with('product')
-            ->where('stripe_monthly_price_id', $this->stripe_price)
-            ->orWhere('stripe_yearly_price_id', $this->stripe_price)
-            ->first();
+        // Find package by stripe_price (uses unique index)
+        $package = Package::findByStripePrice($this->stripe_price)?->load('product');
 
         // Get current period end from Stripe (next billing date)
         $currentPeriodEnd = null;

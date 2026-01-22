@@ -51,35 +51,32 @@ class CreateLicenseOnSubscriptionCreated implements ShouldQueue
             return;
         }
 
-        // Get metadata from checkout session via the subscription metadata
-        $metadata = $stripeSubscription['metadata'] ?? [];
-        $packageId = $metadata['package_id'] ?? null;
-        $productId = $metadata['product_id'] ?? null;
+        // Get stripe_price from subscription items
+        $stripePriceId = $stripeSubscription['items']['data'][0]['price']['id'] ?? null;
 
-        // Fallback: try to find package by subscription name (slug)
-        if (! $packageId) {
-            $package = Package::where('slug', $subscription->type)->first();
-            if ($package) {
-                $packageId = $package->id;
-                $productId = $package->product_id;
+        // Primary: Find package by stripe_price
+        $package = $stripePriceId ? Package::findByStripePrice($stripePriceId) : null;
+
+        // Fallback: Use metadata from checkout session
+        if (! $package) {
+            $metadata = $stripeSubscription['metadata'] ?? [];
+            $packageId = $metadata['package_id'] ?? null;
+
+            if ($packageId) {
+                $package = Package::find($packageId);
             }
         }
 
-        if (! $packageId || ! $productId) {
-            Log::warning('CreateLicenseOnSubscriptionCreated: Package/Product not found', [
-                'subscription_id' => $subscription->id,
-                'subscription_type' => $subscription->type,
-                'metadata' => $metadata,
-            ]);
-
-            return;
+        // Fallback: Try to find package by subscription name (slug)
+        if (! $package) {
+            $package = Package::where('slug', $subscription->type)->first();
         }
-
-        $package = Package::find($packageId);
 
         if (! $package) {
             Log::warning('CreateLicenseOnSubscriptionCreated: Package not found', [
-                'package_id' => $packageId,
+                'subscription_id' => $subscription->id,
+                'subscription_type' => $subscription->type,
+                'stripe_price_id' => $stripePriceId,
             ]);
 
             return;
@@ -99,8 +96,8 @@ class CreateLicenseOnSubscriptionCreated implements ShouldQueue
         // Create the license
         License::create([
             'user_id' => $user->id,
-            'product_id' => $productId,
-            'package_id' => $packageId,
+            'product_id' => $package->product_id,
+            'package_id' => $package->id,
             'subscription_id' => $subscription->id,
             'domain_limit' => $package->domain_limit,
             'status' => LicenseStatus::Active,
@@ -110,7 +107,7 @@ class CreateLicenseOnSubscriptionCreated implements ShouldQueue
         Log::info('CreateLicenseOnSubscriptionCreated: License created', [
             'user_id' => $user->id,
             'subscription_id' => $subscription->id,
-            'package_id' => $packageId,
+            'package_id' => $package->id,
         ]);
     }
 }

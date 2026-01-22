@@ -8,7 +8,6 @@ use App\Http\Resources\ProductDetailResource;
 use App\Models\License;
 use App\Models\Package;
 use App\Models\Product;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -62,18 +61,16 @@ class ProductController extends Controller
 
                 // Check for active or incomplete payment states
                 if ($subscription && ($subscription->active() || $subscription->hasIncompletePayment())) {
-                    // Get the license to find the package
-                    $license = License::where('subscription_id', $subscription->id)
-                        ->with('package')
-                        ->first();
+                    // Find the package by stripe_price
+                    $subscribedPackage = Package::findByStripePrice($subscription->stripe_price) ?? $pkg;
 
                     $currentSubscription = [
                         'id' => $subscription->id,
-                        'package_id' => $license?->package_id ?? $pkg->id,
-                        'package_slug' => $pkg->slug,
-                        'package_name' => $license?->package?->name ?? $pkg->name,
+                        'package_id' => $subscribedPackage->id,
+                        'package_slug' => $subscribedPackage->slug,
+                        'package_name' => $subscribedPackage->name,
                         'stripe_price' => $subscription->stripe_price,
-                        'is_yearly' => ($license?->package ?? $pkg)->stripe_yearly_price_id === $subscription->stripe_price,
+                        'is_yearly' => $subscribedPackage->isYearlyPrice($subscription->stripe_price),
                         'ends_at' => $subscription->ends_at?->toISOString(),
                         'on_grace_period' => $subscription->onGracePeriod(),
                         'requires_payment' => $subscription->hasIncompletePayment(),

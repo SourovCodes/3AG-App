@@ -55,4 +55,23 @@ class Package extends Model
     {
         return $this->stripe_yearly_price_id !== null;
     }
+
+    /**
+     * Find a package by its Stripe price ID (monthly or yearly).
+     */
+    public static function findByStripePrice(string $stripePriceId): ?self
+    {
+        return static::query()
+            ->where('stripe_monthly_price_id', $stripePriceId)
+            ->orWhere('stripe_yearly_price_id', $stripePriceId)
+            ->first();
+    }
+
+    /**
+     * Check if the given price ID is the yearly price for this package.
+     */
+    public function isYearlyPrice(string $stripePriceId): bool
+    {
+        return $this->stripe_yearly_price_id === $stripePriceId;
+    }
 }
