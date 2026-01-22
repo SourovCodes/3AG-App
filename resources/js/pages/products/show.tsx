@@ -1,17 +1,18 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { CheckIcon } from 'lucide-react';
+import { CheckIcon, CreditCardIcon } from 'lucide-react';
 import { useState } from 'react';
 
-import { index as productsIndex, subscribe } from '@/actions/App/Http/Controllers/ProductController';
+import { index as productsIndex, subscribe, swap } from '@/actions/App/Http/Controllers/ProductController';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
-import type { Package, ProductDetail } from '@/types';
+import type { CurrentSubscription, Package, ProductDetail } from '@/types';
 
 interface Props {
     product: ProductDetail;
+    currentSubscription: CurrentSubscription | null;
 }
 
 function formatPrice(price: string): string {
@@ -23,9 +24,24 @@ function formatPrice(price: string): string {
     }).format(parseFloat(price));
 }
 
-function PricingCard({ pkg, isYearly, isPopular }: { pkg: Package; isYearly: boolean; isPopular: boolean }) {
+function PricingCard({
+    pkg,
+    isYearly,
+    isPopular,
+    currentSubscription,
+}: {
+    pkg: Package;
+    isYearly: boolean;
+    isPopular: boolean;
+    currentSubscription: CurrentSubscription | null;
+}) {
     const price = isYearly ? pkg.yearly_price : pkg.monthly_price;
     const period = isYearly ? '/year' : '/month';
+
+    const isCurrentPlan = currentSubscription?.package_id === pkg.id;
+    const isCurrentBillingInterval = currentSubscription?.is_yearly === isYearly;
+    const isExactCurrentPlan = isCurrentPlan && isCurrentBillingInterval;
+    const hasSubscription = currentSubscription !== null;
 
     const handleSubscribe = () => {
         router.post(subscribe.url({ package: pkg.id }), {
@@ -33,9 +49,42 @@ function PricingCard({ pkg, isYearly, isPopular }: { pkg: Package; isYearly: boo
         });
     };
 
+    const handleSwap = () => {
+        router.post(swap.url({ package: pkg.id }), {
+            billing_interval: isYearly ? 'yearly' : 'monthly',
+        });
+    };
+
+    const getButtonText = () => {
+        if (isExactCurrentPlan) {
+            return 'Current Plan';
+        }
+        if (hasSubscription) {
+            if (isCurrentPlan) {
+                return isYearly ? 'Switch to Yearly' : 'Switch to Monthly';
+            }
+            return 'Switch Plan';
+        }
+        return 'Get Started';
+    };
+
+    const handleClick = () => {
+        if (isExactCurrentPlan) return;
+        if (hasSubscription) {
+            handleSwap();
+        } else {
+            handleSubscribe();
+        }
+    };
+
     return (
-        <Card className={cn('relative flex flex-col', isPopular && 'border-primary shadow-lg')}>
-            {isPopular && (
+        <Card className={cn('relative flex flex-col', isPopular && 'border-primary shadow-lg', isCurrentPlan && 'ring-2 ring-primary')}>
+            {isCurrentPlan && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-green-600 px-3 py-1 text-xs font-medium text-white">
+                    Your Plan
+                </div>
+            )}
+            {!isCurrentPlan && isPopular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
                     Most Popular
                 </div>
@@ -71,16 +120,21 @@ function PricingCard({ pkg, isYearly, isPopular }: { pkg: Package; isYearly: boo
                 </ul>
             </CardContent>
             <CardFooter>
-                <Button onClick={handleSubscribe} className="w-full" variant={isPopular ? 'default' : 'outline'}>
-                    Get Started
+                <Button
+                    onClick={handleClick}
+                    className="w-full"
+                    variant={isExactCurrentPlan ? 'secondary' : isPopular ? 'default' : 'outline'}
+                    disabled={isExactCurrentPlan}
+                >
+                    {getButtonText()}
                 </Button>
             </CardFooter>
         </Card>
     );
 }
 
-export default function ProductShow({ product }: Props) {
-    const [isYearly, setIsYearly] = useState(true);
+export default function ProductShow({ product, currentSubscription }: Props) {
+    const [isYearly, setIsYearly] = useState(currentSubscription?.is_yearly ?? true);
     const packages = product.packages ?? [];
 
     return (
@@ -96,6 +150,28 @@ export default function ProductShow({ product }: Props) {
                     <span className="mx-2">/</span>
                     <span className="text-foreground">{product.name}</span>
                 </nav>
+
+                {/* Current Subscription Banner */}
+                {currentSubscription && (
+                    <div className="mb-8 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-950">
+                        <div className="flex items-center gap-3">
+                            <CreditCardIcon className="h-5 w-5 text-green-600 dark:text-green-400" />
+                            <div>
+                                <p className="font-medium text-green-800 dark:text-green-200">
+                                    You're subscribed to {currentSubscription.package_name}
+                                    <span className="ml-2 text-sm font-normal text-green-600 dark:text-green-400">
+                                        ({currentSubscription.is_yearly ? 'Yearly' : 'Monthly'})
+                                    </span>
+                                </p>
+                                {currentSubscription.on_grace_period && (
+                                    <p className="text-sm text-green-600 dark:text-green-400">
+                                        Your subscription is cancelled but active until the end of the billing period.
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Product Header */}
                 <div className="mb-12 text-center">
@@ -131,6 +207,7 @@ export default function ProductShow({ product }: Props) {
                             pkg={pkg}
                             isYearly={isYearly}
                             isPopular={packages.length >= 3 ? index === 1 : index === packages.length - 1}
+                            currentSubscription={currentSubscription}
                         />
                     ))}
                 </div>
