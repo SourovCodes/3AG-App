@@ -155,13 +155,6 @@ class License extends Model
             return;
         }
 
-        // Paused subscriptions (Stripe pause collection feature)
-        if ($subscription->paused()) {
-            $this->pause();
-
-            return;
-        }
-
         // Incomplete payment requires user action (SCA, failed payment)
         if ($subscription->hasIncompletePayment()) {
             $this->suspend();

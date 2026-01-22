@@ -17,10 +17,7 @@ class SyncLicenseStatusOnSubscriptionChange implements ShouldQueue
     private const SUBSCRIPTION_EVENTS = [
         'customer.subscription.updated',
         'customer.subscription.deleted',
-        'customer.subscription.paused',
-        'customer.subscription.resumed',
         'invoice.payment_failed',
-        'invoice.payment_succeeded',
     ];
 
     /**
