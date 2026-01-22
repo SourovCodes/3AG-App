@@ -13,36 +13,36 @@ export function Footer() {
                             </svg>
                             <span className="text-xl font-bold">3AG</span>
                         </Link>
-                        <p className="text-sm text-muted-foreground">Building the future of software licensing, one product at a time.</p>
+                        <p className="text-sm text-muted-foreground">Premium WordPress plugins and themes to power your website.</p>
                     </div>
 
                     <div className="space-y-4">
-                        <h4 className="text-sm font-semibold">Product</h4>
+                        <h4 className="text-sm font-semibold">Products</h4>
                         <ul className="space-y-2">
                             <li>
-                                <Link href="#features" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-                                    Features
+                                <Link href="/products" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                                    All Products
                                 </Link>
                             </li>
                             <li>
-                                <Link href="#pricing" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-                                    Pricing
+                                <Link href="/#features" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                                    Features
                                 </Link>
                             </li>
                         </ul>
                     </div>
 
                     <div className="space-y-4">
-                        <h4 className="text-sm font-semibold">Company</h4>
+                        <h4 className="text-sm font-semibold">Account</h4>
                         <ul className="space-y-2">
                             <li>
-                                <Link href="#" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-                                    About
+                                <Link href="/login" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                                    Login
                                 </Link>
                             </li>
                             <li>
-                                <Link href="#" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-                                    Contact
+                                <Link href="/register" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                                    Register
                                 </Link>
                             </li>
                         </ul>
@@ -52,12 +52,12 @@ export function Footer() {
                         <h4 className="text-sm font-semibold">Legal</h4>
                         <ul className="space-y-2">
                             <li>
-                                <Link href="#" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                                <Link href="/privacy" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
                                     Privacy Policy
                                 </Link>
                             </li>
                             <li>
-                                <Link href="#" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                                <Link href="/terms" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
                                     Terms of Service
                                 </Link>
                             </li>
