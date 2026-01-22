@@ -30,8 +30,13 @@ class SubscriptionResource extends JsonResource
         if ($this->stripe_id && $this->active()) {
             try {
                 $stripeSubscription = $this->asStripeSubscription();
-                if (isset($stripeSubscription->current_period_end) && $stripeSubscription->current_period_end !== null) {
-                    $currentPeriodEnd = Carbon::createFromTimestamp($stripeSubscription->current_period_end)->toISOString();
+                // current_period_end may be at top level or in items
+                $periodEnd = $stripeSubscription->current_period_end
+                    ?? $stripeSubscription->items->data[0]->current_period_end
+                    ?? null;
+
+                if ($periodEnd !== null) {
+                    $currentPeriodEnd = Carbon::createFromTimestamp($periodEnd)->toISOString();
                 }
             } catch (\Exception $e) {
                 Log::warning('Failed to fetch Stripe subscription data', [
