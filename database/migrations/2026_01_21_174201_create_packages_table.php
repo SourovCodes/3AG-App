@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('slug');
             $table->text('description')->nullable();
             $table->integer('domain_limit')->nullable(); // null = unlimited
-            $table->string('stripe_monthly_price_id')->nullable();
-            $table->string('stripe_yearly_price_id')->nullable();
+            $table->string('stripe_monthly_price_id')->nullable()->unique();
+            $table->string('stripe_yearly_price_id')->nullable()->unique();
             $table->decimal('monthly_price', 10, 2)->nullable();
             $table->decimal('yearly_price', 10, 2)->nullable();
             $table->boolean('is_active')->default(true);

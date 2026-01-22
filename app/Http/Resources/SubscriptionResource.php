@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources;
 
-use App\Models\License;
+use App\Models\Package;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -19,10 +19,11 @@ class SubscriptionResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        // Try to find associated license for product/package info
-        $license = License::query()
-            ->where('subscription_id', $this->id)
-            ->with(['product', 'package'])
+        // Find package by stripe_price (either monthly or yearly)
+        $package = Package::query()
+            ->with('product')
+            ->where('stripe_monthly_price_id', $this->stripe_price)
+            ->orWhere('stripe_yearly_price_id', $this->stripe_price)
             ->first();
 
         // Get current period end from Stripe (next billing date)
@@ -56,8 +57,8 @@ class SubscriptionResource extends JsonResource
             'ends_at' => $this->ends_at?->toISOString(),
             'created_at' => $this->created_at->toISOString(),
             'current_period_end' => $currentPeriodEnd,
-            'product_name' => $license?->product?->name,
-            'package_name' => $license?->package?->name,
+            'product_name' => $package?->product?->name,
+            'package_name' => $package?->name,
             'is_active' => $this->active(),
             'is_on_trial' => $this->onTrial(),
             'is_canceled' => $this->canceled(),
