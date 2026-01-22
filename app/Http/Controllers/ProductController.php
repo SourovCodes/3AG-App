@@ -47,6 +47,11 @@ class ProductController extends Controller
 
     public function subscribe(Package $package): RedirectResponse
     {
+        // Ensure the package belongs to an active product
+        if (! $package->product || ! $package->product->is_active || ! $package->is_active) {
+            abort(404);
+        }
+
         Inertia::flash('toast', [
             'type' => 'info',
             'message' => 'Subscription not available yet',

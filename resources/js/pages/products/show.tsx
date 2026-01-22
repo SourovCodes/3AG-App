@@ -2,6 +2,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import { CheckIcon } from 'lucide-react';
 import { useState } from 'react';
 
+import { index as productsIndex, subscribe } from '@/actions/App/Http/Controllers/ProductController';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,7 +28,7 @@ function PricingCard({ pkg, isYearly, isPopular }: { pkg: Package; isYearly: boo
     const period = isYearly ? '/year' : '/month';
 
     const handleSubscribe = () => {
-        router.post(`/packages/${pkg.id}/subscribe`);
+        router.post(subscribe.url({ package: pkg.id }));
     };
 
     return (
@@ -87,7 +88,7 @@ export default function ProductShow({ product }: Props) {
             <div className="container mx-auto px-4 py-12">
                 {/* Breadcrumb */}
                 <nav className="mb-8 text-sm text-muted-foreground">
-                    <Link href="/products" className="hover:text-foreground">
+                    <Link href={productsIndex.url()} className="hover:text-foreground">
                         Products
                     </Link>
                     <span className="mx-2">/</span>
@@ -140,7 +141,7 @@ export default function ProductShow({ product }: Props) {
 
                 {/* Back Link */}
                 <div className="mt-12 text-center">
-                    <Link href="/products">
+                    <Link href={productsIndex.url()}>
                         <Button variant="ghost">← Back to all products</Button>
                     </Link>
                 </div>

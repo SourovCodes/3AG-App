@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 
+import { show } from '@/actions/App/Http/Controllers/ProductController';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -41,7 +42,7 @@ export default function ProductsIndex({ products }: Props) {
                                 <CardDescription className="line-clamp-3">{product.description}</CardDescription>
                             </CardHeader>
                             <CardFooter>
-                                <Link href={`/products/${product.slug}`} className="w-full">
+                                <Link href={show.url({ product: product.slug })} className="w-full">
                                     <Button variant="outline" className="w-full">
                                         View Details
                                     </Button>
