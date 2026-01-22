@@ -1,5 +1,4 @@
 import { router } from '@inertiajs/react';
-import { ThemeProvider } from 'next-themes';
 import { type PropsWithChildren, useEffect } from 'react';
 import { toast } from 'sonner';
 
@@ -44,7 +43,7 @@ export default function DashboardLayout({ children, title, breadcrumbs = [] }: D
     useFlashToast();
 
     return (
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <>
             <SidebarProvider>
                 <DashboardSidebar />
                 <SidebarInset>
@@ -76,6 +75,6 @@ export default function DashboardLayout({ children, title, breadcrumbs = [] }: D
                 </SidebarInset>
             </SidebarProvider>
             <Toaster richColors closeButton />
-        </ThemeProvider>
+        </>
     );
 }

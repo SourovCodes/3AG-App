@@ -1,5 +1,4 @@
 import { router } from '@inertiajs/react';
-import { ThemeProvider } from 'next-themes';
 import { type PropsWithChildren, useEffect } from 'react';
 import { toast } from 'sonner';
 
@@ -37,13 +36,13 @@ export default function MainLayout({ children }: PropsWithChildren) {
     useFlashToast();
 
     return (
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <>
             <div className="flex min-h-screen flex-col bg-background">
                 <Navbar />
                 <main className="flex-1">{children}</main>
                 <Footer />
             </div>
             <Toaster richColors closeButton />
-        </ThemeProvider>
+        </>
     );
 }
