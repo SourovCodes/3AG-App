@@ -68,7 +68,7 @@ class LicenseForm
                         Grid::make(2)
                             ->schema([
                                 Select::make('status')
-                                    ->enum(LicenseStatus::class)
+                                    ->options(LicenseStatus::class)
                                     ->required()
                                     ->default(LicenseStatus::Active)
                                     ->native(false),
