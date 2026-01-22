@@ -125,6 +125,18 @@ task('permissions:fix', function () {
 
 /*
 |--------------------------------------------------------------------------
+| Restart Queue Workers
+|--------------------------------------------------------------------------
+*/
+
+task('queue:restart', function () {
+    writeln('🔄 Gracefully restarting queue workers...');
+    // This signals workers to finish their current job, then restart
+    run('cd {{release_path}} && php artisan queue:restart');
+})->desc('Gracefully restart queue workers');
+
+/*
+|--------------------------------------------------------------------------
 | Hooks
 |--------------------------------------------------------------------------
 */
@@ -137,6 +149,9 @@ after('deploy:vendors', 'upload:assets');
 
 // Fix permissions after symlink switch
 after('deploy:symlink', 'permissions:fix');
+
+// Restart queue workers after deployment
+after('deploy:symlink', 'queue:restart');
 
 // Unlock if deploy fails
 after('deploy:failed', 'deploy:unlock');
