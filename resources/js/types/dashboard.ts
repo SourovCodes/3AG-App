@@ -80,7 +80,11 @@ export interface DashboardOverview {
 export interface Invoice {
     id: string;
     date: string;
-    total: string;
+    subtotal: string | null;
+    amount_paid: string;
+    credit_applied: string | null;
+    is_credit_note: boolean;
+    credit_amount: string | null;
     status: string;
     hosted_invoice_url: string | null;
 }

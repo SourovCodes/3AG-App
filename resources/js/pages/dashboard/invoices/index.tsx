@@ -73,8 +73,9 @@ export default function InvoicesIndex({ invoices }: InvoicesIndexProps) {
                                         <TableHead>Invoice</TableHead>
                                         <TableHead>Date</TableHead>
                                         <TableHead>Amount</TableHead>
+                                        <TableHead>Paid</TableHead>
                                         <TableHead>Status</TableHead>
-                                        <TableHead className="w-[140px]">Actions</TableHead>
+                                        <TableHead className="w-[100px]">Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -87,7 +88,21 @@ export default function InvoicesIndex({ invoices }: InvoicesIndexProps) {
                                                 </div>
                                             </TableCell>
                                             <TableCell>{formatDate(invoice.date)}</TableCell>
-                                            <TableCell className="font-medium">{invoice.total}</TableCell>
+                                            <TableCell className="font-medium">
+                                                {invoice.is_credit_note ? (
+                                                    <span className="text-green-600 dark:text-green-400">+{invoice.credit_amount} credit</span>
+                                                ) : (
+                                                    invoice.subtotal
+                                                )}
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="space-y-0.5">
+                                                    <div className="font-medium">{invoice.amount_paid}</div>
+                                                    {invoice.credit_applied && (
+                                                        <div className="text-xs text-muted-foreground">{invoice.credit_applied} credit used</div>
+                                                    )}
+                                                </div>
+                                            </TableCell>
                                             <TableCell>
                                                 <Badge variant={getStatusBadgeVariant(invoice.status)}>{invoice.status}</Badge>
                                             </TableCell>
