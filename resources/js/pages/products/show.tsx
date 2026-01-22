@@ -28,7 +28,9 @@ function PricingCard({ pkg, isYearly, isPopular }: { pkg: Package; isYearly: boo
     const period = isYearly ? '/year' : '/month';
 
     const handleSubscribe = () => {
-        router.post(subscribe.url({ package: pkg.id }));
+        router.post(subscribe.url({ package: pkg.id }), {
+            billing_interval: isYearly ? 'yearly' : 'monthly',
+        });
     };
 
     return (

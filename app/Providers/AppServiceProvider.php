@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Listeners\CreateLicenseOnSubscriptionCreated;
 use App\Listeners\SyncLicenseStatusOnSubscriptionChange;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
@@ -51,6 +52,11 @@ class AppServiceProvider extends ServiceProvider
 
     protected function configureEventListeners(): void
     {
+        Event::listen(
+            WebhookReceived::class,
+            CreateLicenseOnSubscriptionCreated::class,
+        );
+
         Event::listen(
             WebhookReceived::class,
             SyncLicenseStatusOnSubscriptionChange::class,

@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SubscribeRequest;
 use App\Http\Resources\ProductDetailResource;
 use App\Models\Package;
 use App\Models\Product;
-use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class ProductController extends Controller
 {
@@ -45,19 +46,64 @@ class ProductController extends Controller
         ]);
     }
 
-    public function subscribe(Package $package): RedirectResponse
+    public function subscribe(SubscribeRequest $request, Package $package): SymfonyResponse
     {
         // Ensure the package belongs to an active product
         if (! $package->product || ! $package->product->is_active || ! $package->is_active) {
             abort(404);
         }
 
-        Inertia::flash('toast', [
-            'type' => 'info',
-            'message' => 'Subscription not available yet',
-            'description' => 'Stripe integration is coming soon. Stay tuned!',
-        ]);
+        $user = $request->user();
 
-        return back();
+        if (! $user) {
+            return redirect()->route('login');
+        }
+
+        $billingInterval = $request->validated('billing_interval');
+
+        // Get the appropriate Stripe price ID based on billing interval
+        $priceId = $billingInterval === 'yearly'
+            ? $package->stripe_yearly_price_id
+            : $package->stripe_monthly_price_id;
+
+        if (! $priceId) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Pricing not available',
+                'description' => 'This billing interval is not available for this package.',
+            ]);
+
+            return back();
+        }
+
+        // Create a unique subscription name using package slug
+        $subscriptionName = $package->slug;
+
+        // Check if user already has an active subscription for this package
+        if ($user->subscribed($subscriptionName)) {
+            Inertia::flash('toast', [
+                'type' => 'warning',
+                'message' => 'Already subscribed',
+                'description' => 'You already have an active subscription for this package.',
+            ]);
+
+            return redirect()->route('dashboard.subscriptions.index');
+        }
+
+        // Create Stripe Checkout session
+        $checkout = $user->newSubscription($subscriptionName, $priceId)
+            ->checkout([
+                'success_url' => route('dashboard.subscriptions.index').'?checkout=success',
+                'cancel_url' => route('products.show', $package->product->slug).'?checkout=cancelled',
+                'metadata' => [
+                    'package_id' => $package->id,
+                    'package_name' => $package->name,
+                    'product_id' => $package->product_id,
+                    'product_name' => $package->product->name,
+                ],
+            ]);
+
+        // Use Inertia::location() for external redirect to Stripe
+        return Inertia::location($checkout->url);
     }
 }
