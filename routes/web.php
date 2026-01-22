@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Dashboard\DashboardController;
@@ -43,8 +44,13 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 
+    // Email verification routes
+    Route::get('/email/verify', [EmailVerificationController::class, 'notice'])->name('verification.notice');
+    Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])->middleware('signed')->name('verification.verify');
+    Route::post('/email/verification-notification', [EmailVerificationController::class, 'send'])->middleware('throttle:6,1')->name('verification.send');
+
     // Dashboard routes
-    Route::prefix('dashboard')->name('dashboard.')->group(function () {
+    Route::prefix('dashboard')->name('dashboard.')->middleware('verified')->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('index');
 
         // Subscriptions
