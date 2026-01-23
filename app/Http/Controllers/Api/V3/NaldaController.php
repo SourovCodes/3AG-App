@@ -11,6 +11,7 @@ use App\Http\Resources\Api\V3\NaldaCsvUploadResource;
 use App\Models\License;
 use App\Models\NaldaCsvUpload;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use phpseclib3\Net\SFTP;
 
 class NaldaController extends Controller
@@ -70,28 +71,21 @@ class NaldaController extends Controller
     /**
      * List previous CSV upload requests with pagination.
      */
-    public function listCsvUploads(ListCsvUploadsRequest $request): JsonResponse
+    public function listCsvUploads(ListCsvUploadsRequest $request): AnonymousResourceCollection
     {
         /** @var License $license */
         $license = $request->input('validated_license');
         $normalizedDomain = $request->input('normalized_domain');
 
         $uploads = NaldaCsvUpload::query()
+            ->select(['id', 'csv_type', 'status', 'created_at'])
             ->with('media')
             ->where('license_id', $license->id)
             ->where('domain', $normalizedDomain)
             ->latest()
             ->paginate($request->validated('per_page') ?? 15);
 
-        return response()->json([
-            'data' => NaldaCsvUploadResource::collection($uploads),
-            'meta' => [
-                'current_page' => $uploads->currentPage(),
-                'last_page' => $uploads->lastPage(),
-                'per_page' => $uploads->perPage(),
-                'total' => $uploads->total(),
-            ],
-        ]);
+        return NaldaCsvUploadResource::collection($uploads);
     }
 
     /**

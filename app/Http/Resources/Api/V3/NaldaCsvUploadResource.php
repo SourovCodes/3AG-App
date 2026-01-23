@@ -21,10 +21,7 @@ class NaldaCsvUploadResource extends JsonResource
             'id' => $this->id,
             'type' => $this->csv_type->value,
             'file_name' => $this->getFileName(),
-            'file_size' => $this->getFileSize(),
-            'sftp_path' => $this->sftp_path,
             'status' => $this->status,
-            'uploaded_at' => $this->uploaded_at?->toIso8601String(),
             'created_at' => $this->created_at->toIso8601String(),
         ];
     }
