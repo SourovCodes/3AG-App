@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V3;
 
+use App\Http\Controllers\Api\V3\Concerns\NormalizesDomain;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V3\ActivateLicenseRequest;
 use App\Http\Requests\Api\V3\CheckLicenseRequest;
@@ -10,10 +11,13 @@ use App\Http\Requests\Api\V3\ValidateLicenseRequest;
 use App\Http\Resources\Api\V3\LicenseValidationResource;
 use App\Models\License;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 
 class LicenseController extends Controller
 {
+    use NormalizesDomain;
+
     public function validate(ValidateLicenseRequest $request): JsonResponse
     {
         $license = $this->findLicense(
@@ -97,7 +101,7 @@ class LicenseController extends Controller
         ], 201);
     }
 
-    public function deactivate(DeactivateLicenseRequest $request): JsonResponse
+    public function deactivate(DeactivateLicenseRequest $request): JsonResponse|Response
     {
         $license = $this->findLicense(
             $request->validated('license_key'),
@@ -122,7 +126,7 @@ class LicenseController extends Controller
 
         $activation->deactivate();
 
-        return response()->json([], 204);
+        return response()->noContent();
     }
 
     public function check(CheckLicenseRequest $request): JsonResponse
@@ -145,8 +149,9 @@ class LicenseController extends Controller
 
         if (! $activation) {
             return response()->json([
-                'activated' => false,
-                'valid' => $license->isActive(),
+                'data' => [
+                    'activated' => false,
+                ],
             ]);
         }
 
@@ -154,9 +159,10 @@ class LicenseController extends Controller
         $license->update(['last_validated_at' => now()]);
 
         return response()->json([
-            'activated' => true,
-            'valid' => $license->isActive(),
-            'data' => new LicenseValidationResource($license),
+            'data' => [
+                'activated' => true,
+                'license' => new LicenseValidationResource($license),
+            ],
         ]);
     }
 
@@ -172,16 +178,5 @@ class LicenseController extends Controller
         }
 
         return $query->first();
-    }
-
-    private function normalizeDomain(string $domain): string
-    {
-        $domain = preg_replace('#^https?://#', '', $domain);
-        $domain = explode('/', $domain)[0];
-        $domain = explode('?', $domain)[0];
-        $domain = preg_replace('#:\d+$#', '', $domain);
-        $domain = preg_replace('#^www\.#', '', $domain);
-
-        return strtolower(trim($domain));
     }
 }

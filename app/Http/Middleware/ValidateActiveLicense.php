@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Enums\LicenseStatus;
+use App\Http\Controllers\Api\V3\Concerns\NormalizesDomain;
 use App\Models\License;
 use Closure;
 use Illuminate\Http\Request;
@@ -10,6 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ValidateActiveLicense
 {
+    use NormalizesDomain;
+
     /**
      * Handle an incoming request.
      *
@@ -60,16 +63,5 @@ class ValidateActiveLicense
         ]);
 
         return $next($request);
-    }
-
-    private function normalizeDomain(string $domain): string
-    {
-        $domain = preg_replace('#^https?://#', '', $domain);
-        $domain = explode('/', $domain)[0];
-        $domain = explode('?', $domain)[0];
-        $domain = preg_replace('#:\d+$#', '', $domain);
-        $domain = preg_replace('#^www\.#', '', $domain);
-
-        return strtolower(trim($domain));
     }
 }

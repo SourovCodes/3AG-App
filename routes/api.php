@@ -19,14 +19,22 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v3')->name('api.v3.')->middleware(['throttle:api'])->group(function () {
     Route::prefix('licenses')->name('licenses.')->group(function () {
         Route::post('/validate', [LicenseController::class, 'validate'])->name('validate');
-        Route::post('/activate', [LicenseController::class, 'activate'])->name('activate');
-        Route::post('/deactivate', [LicenseController::class, 'deactivate'])->name('deactivate');
+        Route::post('/activate', [LicenseController::class, 'activate'])
+            ->middleware('throttle:20,1') // 20 requests per minute for activation
+            ->name('activate');
+        Route::post('/deactivate', [LicenseController::class, 'deactivate'])
+            ->middleware('throttle:20,1') // 20 requests per minute for deactivation
+            ->name('deactivate');
         Route::post('/check', [LicenseController::class, 'check'])->name('check');
     });
 
     Route::prefix('nalda')->name('nalda.')->middleware([ValidateActiveLicense::class])->group(function () {
-        Route::post('/csv-upload', [NaldaController::class, 'uploadCsv'])->name('csv-upload');
+        Route::post('/csv-upload', [NaldaController::class, 'uploadCsv'])
+            ->middleware('throttle:10,1') // 10 uploads per minute
+            ->name('csv-upload');
         Route::get('/csv-upload/list', [NaldaController::class, 'listCsvUploads'])->name('csv-upload.list');
-        Route::post('/sftp-validate', [NaldaController::class, 'validateSftp'])->name('sftp-validate');
+        Route::post('/sftp-validate', [NaldaController::class, 'validateSftp'])
+            ->middleware('throttle:30,1') // 30 validation attempts per minute
+            ->name('sftp-validate');
     });
 });

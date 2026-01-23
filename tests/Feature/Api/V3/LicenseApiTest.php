@@ -28,11 +28,8 @@ describe('POST /api/v3/licenses/validate', function () {
 
         $response->assertSuccessful()
             ->assertJson([
-                'success' => true,
-                'license' => [
-                    'valid' => true,
+                'data' => [
                     'product' => $this->product->name,
-                    'version' => '1.0.0',
                 ],
             ]);
     });
@@ -47,10 +44,7 @@ describe('POST /api/v3/licenses/validate', function () {
 
         $response->assertNotFound()
             ->assertJson([
-                'success' => false,
-                'error' => [
-                    'code' => 'license_invalid',
-                ],
+                'message' => 'Invalid license key.',
             ]);
     });
 
@@ -93,9 +87,11 @@ describe('POST /api/v3/licenses/validate', function () {
 
         $response->assertSuccessful()
             ->assertJson([
-                'license' => [
-                    'domain_limit' => 3,
-                    'domains_used' => 2,
+                'data' => [
+                    'activations' => [
+                        'limit' => 3,
+                        'used' => 2,
+                    ],
                 ],
             ]);
     });
@@ -111,11 +107,10 @@ describe('POST /api/v3/licenses/activate', function () {
 
         $response->assertCreated()
             ->assertJson([
-                'success' => true,
-                'message' => 'License activated successfully.',
-                'license' => [
-                    'valid' => true,
-                    'domains_used' => 1,
+                'data' => [
+                    'activations' => [
+                        'used' => 1,
+                    ],
                 ],
             ]);
 
@@ -166,10 +161,7 @@ describe('POST /api/v3/licenses/activate', function () {
         ]);
 
         $response->assertSuccessful()
-            ->assertJson([
-                'success' => true,
-                'message' => 'License already activated on this domain.',
-            ]);
+            ->assertJsonStructure(['data' => ['activations']]);
 
         // Ensure no duplicate was created
         expect(LicenseActivation::where('license_id', $this->license->id)->where('domain', 'example.com')->count())->toBe(1);
@@ -188,10 +180,7 @@ describe('POST /api/v3/licenses/activate', function () {
         ]);
 
         $response->assertSuccessful()
-            ->assertJson([
-                'success' => true,
-                'message' => 'License reactivated on this domain.',
-            ]);
+            ->assertJsonStructure(['data' => ['activations']]);
 
         expect($activation->fresh()->deactivated_at)->toBeNull();
     });
@@ -209,10 +198,7 @@ describe('POST /api/v3/licenses/activate', function () {
 
         $response->assertForbidden()
             ->assertJson([
-                'success' => false,
-                'error' => [
-                    'code' => 'domain_limit_reached',
-                ],
+                'message' => 'Domain limit reached. Maximum 3 domain(s) allowed.',
             ]);
     });
 
@@ -227,10 +213,7 @@ describe('POST /api/v3/licenses/activate', function () {
 
         $response->assertForbidden()
             ->assertJson([
-                'success' => false,
-                'error' => [
-                    'code' => 'license_inactive',
-                ],
+                'message' => 'License is not active.',
             ]);
     });
 
@@ -270,11 +253,7 @@ describe('POST /api/v3/licenses/deactivate', function () {
             'domain' => 'example.com',
         ]);
 
-        $response->assertSuccessful()
-            ->assertJson([
-                'success' => true,
-                'message' => 'License deactivated successfully.',
-            ]);
+        $response->assertNoContent();
 
         expect($activation->fresh()->deactivated_at)->not->toBeNull();
     });
@@ -320,10 +299,7 @@ describe('POST /api/v3/licenses/deactivate', function () {
 
         $response->assertNotFound()
             ->assertJson([
-                'success' => false,
-                'error' => [
-                    'code' => 'activation_not_found',
-                ],
+                'message' => 'No active activation found for this domain.',
             ]);
     });
 
@@ -358,12 +334,14 @@ describe('POST /api/v3/licenses/check', function () {
 
         $response->assertSuccessful()
             ->assertJson([
-                'success' => true,
-                'activated' => true,
-                'license_valid' => true,
-                'license' => [
-                    'valid' => true,
-                    'version' => '1.0.0',
+                'data' => [
+                    'activated' => true,
+                ],
+            ])
+            ->assertJsonStructure([
+                'data' => [
+                    'activated',
+                    'license' => ['expires_at', 'activations', 'product', 'package'],
                 ],
             ]);
     });
@@ -389,13 +367,13 @@ describe('POST /api/v3/licenses/check', function () {
 
         $response->assertSuccessful()
             ->assertJson([
-                'success' => true,
-                'activated' => false,
-                'license_valid' => true,
+                'data' => [
+                    'activated' => false,
+                ],
             ]);
     });
 
-    it('returns license_valid false for expired license', function () {
+    it('returns activated false for expired license', function () {
         $this->license->update([
             'status' => LicenseStatus::Active,
             'expires_at' => now()->subDay(),
@@ -409,9 +387,9 @@ describe('POST /api/v3/licenses/check', function () {
 
         $response->assertSuccessful()
             ->assertJson([
-                'success' => true,
-                'activated' => false,
-                'license_valid' => false,
+                'data' => [
+                    'activated' => false,
+                ],
             ]);
     });
 

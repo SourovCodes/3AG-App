@@ -62,8 +62,7 @@ class NaldaController extends Controller
             $csvUpload->markAsFailed($e->getMessage());
 
             return response()->json([
-                'message' => 'Failed to upload to SFTP server.',
-                'error' => $e->getMessage(),
+                'message' => 'Failed to upload to SFTP server. Please check your credentials and try again.',
             ], 500);
         }
     }
@@ -103,26 +102,23 @@ class NaldaController extends Controller
         try {
             $sftp = new SFTP(
                 $request->validated('sftp_host'),
-                $request->validated('sftp_port') ?? 22
+                $request->validated('sftp_port') ?? 22,
+                10 // 10 second connection timeout
             );
 
             if (! $sftp->login($request->validated('sftp_username'), $request->validated('sftp_password'))) {
                 return response()->json([
-                    'valid' => false,
                     'message' => 'Authentication failed.',
-                ]);
+                ], 422);
             }
 
             $sftp->disconnect();
 
-            return response()->json([
-                'valid' => true,
-            ]);
+            return response()->json(['data' => []]);
         } catch (\Exception $e) {
             return response()->json([
-                'valid' => false,
-                'message' => 'Connection failed: '.$e->getMessage(),
-            ]);
+                'message' => 'Connection failed. Please check the hostname and port.',
+            ], 422);
         }
     }
 
@@ -135,7 +131,7 @@ class NaldaController extends Controller
         string $localFilePath,
         string $originalFilename
     ): string {
-        $sftp = new SFTP($host, $port);
+        $sftp = new SFTP($host, $port, 30); // 30 second connection timeout
 
         if (! $sftp->login($username, $password)) {
             throw new \RuntimeException('SFTP authentication failed.');
