@@ -14,9 +14,6 @@ use Illuminate\Support\Facades\DB;
 
 class LicenseController extends Controller
 {
-    /**
-     * Validate a license key and return license information.
-     */
     public function validate(ValidateLicenseRequest $request): JsonResponse
     {
         $license = $this->findLicense(
@@ -25,20 +22,16 @@ class LicenseController extends Controller
         );
 
         if (! $license) {
-            return $this->errorResponse('Invalid license key.', 'license_invalid', 404);
+            return response()->json(['message' => 'Invalid license key.'], 404);
         }
 
         $license->update(['last_validated_at' => now()]);
 
         return response()->json([
-            'success' => true,
-            'license' => new LicenseValidationResource($license),
+            'data' => new LicenseValidationResource($license),
         ]);
     }
 
-    /**
-     * Activate a license on a domain.
-     */
     public function activate(ActivateLicenseRequest $request): JsonResponse
     {
         $license = $this->findLicense(
@@ -47,56 +40,44 @@ class LicenseController extends Controller
         );
 
         if (! $license) {
-            return $this->errorResponse('Invalid license key.', 'license_invalid', 404);
+            return response()->json(['message' => 'Invalid license key.'], 404);
         }
 
         if (! $license->isActive()) {
-            return $this->errorResponse(
-                'License is not active.',
-                'license_inactive',
-                403
-            );
+            return response()->json(['message' => 'License is not active.'], 403);
         }
 
         $domain = $this->normalizeDomain($request->validated('domain'));
 
-        // Check if already activated on this domain
         $existingActivation = $license->activations()
             ->where('domain', $domain)
             ->first();
 
         if ($existingActivation) {
-            // If already active, update last checked and return success
             if ($existingActivation->isActive()) {
                 $existingActivation->updateLastChecked();
 
                 return response()->json([
-                    'success' => true,
-                    'message' => 'License already activated on this domain.',
-                    'license' => new LicenseValidationResource($license),
+                    'data' => new LicenseValidationResource($license),
                 ]);
             }
 
-            // If deactivated, reactivate it
             $existingActivation->reactivate();
 
             return response()->json([
-                'success' => true,
-                'message' => 'License reactivated on this domain.',
-                'license' => new LicenseValidationResource($license->fresh(['product', 'package'])->loadCount(['activations as domains_used' => fn ($q) => $q->whereNull('deactivated_at')])),
+                'data' => new LicenseValidationResource(
+                    $license->fresh(['product', 'package'])
+                        ->loadCount(['activations as domains_used' => fn ($q) => $q->whereNull('deactivated_at')])
+                ),
             ]);
         }
 
-        // Check domain limit
         if (! $license->canActivateMoreDomains()) {
-            return $this->errorResponse(
-                'Domain limit reached. Maximum '.$license->domain_limit.' domain(s) allowed.',
-                'domain_limit_reached',
-                403
-            );
+            return response()->json([
+                'message' => "Domain limit reached. Maximum {$license->domain_limit} domain(s) allowed.",
+            ], 403);
         }
 
-        // Create new activation within transaction
         DB::transaction(function () use ($license, $domain, $request) {
             $license->activations()->create([
                 'domain' => $domain,
@@ -109,15 +90,13 @@ class LicenseController extends Controller
         });
 
         return response()->json([
-            'success' => true,
-            'message' => 'License activated successfully.',
-            'license' => new LicenseValidationResource($license->fresh(['product', 'package'])->loadCount(['activations as domains_used' => fn ($q) => $q->whereNull('deactivated_at')])),
+            'data' => new LicenseValidationResource(
+                $license->fresh(['product', 'package'])
+                    ->loadCount(['activations as domains_used' => fn ($q) => $q->whereNull('deactivated_at')])
+            ),
         ], 201);
     }
 
-    /**
-     * Deactivate a license from a domain.
-     */
     public function deactivate(DeactivateLicenseRequest $request): JsonResponse
     {
         $license = $this->findLicense(
@@ -127,7 +106,7 @@ class LicenseController extends Controller
         );
 
         if (! $license) {
-            return $this->errorResponse('Invalid license key.', 'license_invalid', 404);
+            return response()->json(['message' => 'Invalid license key.'], 404);
         }
 
         $domain = $this->normalizeDomain($request->validated('domain'));
@@ -138,24 +117,14 @@ class LicenseController extends Controller
             ->first();
 
         if (! $activation) {
-            return $this->errorResponse(
-                'No active activation found for this domain.',
-                'activation_not_found',
-                404
-            );
+            return response()->json(['message' => 'No active activation found for this domain.'], 404);
         }
 
         $activation->deactivate();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'License deactivated successfully.',
-        ]);
+        return response()->json([], 204);
     }
 
-    /**
-     * Check if a license is active on a specific domain.
-     */
     public function check(CheckLicenseRequest $request): JsonResponse
     {
         $license = $this->findLicense(
@@ -164,7 +133,7 @@ class LicenseController extends Controller
         );
 
         if (! $license) {
-            return $this->errorResponse('Invalid license key.', 'license_invalid', 404);
+            return response()->json(['message' => 'Invalid license key.'], 404);
         }
 
         $domain = $this->normalizeDomain($request->validated('domain'));
@@ -176,27 +145,21 @@ class LicenseController extends Controller
 
         if (! $activation) {
             return response()->json([
-                'success' => true,
                 'activated' => false,
-                'license_valid' => $license->isActive(),
+                'valid' => $license->isActive(),
             ]);
         }
 
-        // Update last checked timestamp
         $activation->updateLastChecked();
         $license->update(['last_validated_at' => now()]);
 
         return response()->json([
-            'success' => true,
             'activated' => true,
-            'license_valid' => $license->isActive(),
-            'license' => new LicenseValidationResource($license),
+            'valid' => $license->isActive(),
+            'data' => new LicenseValidationResource($license),
         ]);
     }
 
-    /**
-     * Find a license by key and product slug.
-     */
     private function findLicense(string $licenseKey, string $productSlug, bool $withRelations = true): ?License
     {
         $query = License::query()
@@ -211,38 +174,14 @@ class LicenseController extends Controller
         return $query->first();
     }
 
-    /**
-     * Normalize domain by removing protocol, www, port, and paths.
-     */
     private function normalizeDomain(string $domain): string
     {
-        // Remove protocol
         $domain = preg_replace('#^https?://#', '', $domain);
-
-        // Remove paths and query strings
         $domain = explode('/', $domain)[0];
         $domain = explode('?', $domain)[0];
-
-        // Remove port
         $domain = preg_replace('#:\d+$#', '', $domain);
-
-        // Remove www prefix
         $domain = preg_replace('#^www\.#', '', $domain);
 
         return strtolower(trim($domain));
-    }
-
-    /**
-     * Return a standardized error response.
-     */
-    private function errorResponse(string $message, string $code, int $status): JsonResponse
-    {
-        return response()->json([
-            'success' => false,
-            'error' => [
-                'message' => $message,
-                'code' => $code,
-            ],
-        ], $status);
     }
 }
