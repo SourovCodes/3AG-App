@@ -33,7 +33,7 @@ class NaldaController extends Controller
             'domain' => $normalizedDomain,
             'csv_type' => $csvType,
             'sftp_host' => $request->validated('sftp_host'),
-            'sftp_port' => $request->validated('sftp_port') ?? 22,
+            'sftp_port' => $request->validated('sftp_port') ?? 2022,
             'sftp_username' => $request->validated('sftp_username'),
             'status' => 'processing',
         ]);
@@ -45,7 +45,7 @@ class NaldaController extends Controller
         try {
             $sftpPath = $this->uploadToSftp(
                 $request->validated('sftp_host'),
-                $request->validated('sftp_port') ?? 22,
+                $request->validated('sftp_port') ?? 2022,
                 $request->validated('sftp_username'),
                 $request->validated('sftp_password'),
                 $csvType,
@@ -104,7 +104,7 @@ class NaldaController extends Controller
         try {
             $sftp = new SFTP(
                 $request->validated('sftp_host'),
-                $request->validated('sftp_port') ?? 22,
+                $request->validated('sftp_port') ?? 2022,
                 10 // 10 second connection timeout
             );
 
