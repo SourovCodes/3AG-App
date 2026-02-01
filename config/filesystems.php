@@ -38,6 +38,14 @@ return [
             'report' => false,
         ],
 
+        'nalda-csv' => [
+            'driver' => 'local',
+            'root' => storage_path('app/nalda-csv'),
+            'serve' => true,
+            'throw' => false,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

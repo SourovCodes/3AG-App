@@ -8,10 +8,12 @@ use App\Http\Requests\Api\V3\Nalda\ListCsvUploadsRequest;
 use App\Http\Requests\Api\V3\Nalda\UploadCsvRequest;
 use App\Http\Requests\Api\V3\Nalda\ValidateSftpRequest;
 use App\Http\Resources\Api\V3\NaldaCsvUploadResource;
+use App\Jobs\UploadNaldaCsvToSftp;
 use App\Models\License;
 use App\Models\NaldaCsvUpload;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Crypt;
 use phpseclib3\Net\SFTP;
 
 class NaldaController extends Controller
@@ -36,36 +38,20 @@ class NaldaController extends Controller
             'sftp_host' => $request->validated('sftp_host'),
             'sftp_port' => $request->validated('sftp_port') ?? 2022,
             'sftp_username' => $request->validated('sftp_username'),
-            'status' => 'processing',
+            'status' => 'pending',
         ]);
 
         $csvUpload->addMedia($file)
-            ->usingFileName($this->generateFilename($csvUpload, $originalFilename))
+            ->usingFileName($originalFilename)
             ->toMediaCollection('csv');
 
-        try {
-            $sftpPath = $this->uploadToSftp(
-                $request->validated('sftp_host'),
-                $request->validated('sftp_port') ?? 2022,
-                $request->validated('sftp_username'),
-                $request->validated('sftp_password'),
-                $csvType,
-                $csvUpload->getCsvFile()->getPath(),
-                $originalFilename
-            );
+        $encryptedPassword = Crypt::encryptString($request->validated('sftp_password'));
 
-            $csvUpload->markAsUploaded($sftpPath);
+        UploadNaldaCsvToSftp::dispatch($csvUpload, $encryptedPassword);
 
-            return response()->json([
-                'data' => new NaldaCsvUploadResource($csvUpload),
-            ], 201);
-        } catch (\Exception $e) {
-            $csvUpload->markAsFailed($e->getMessage());
-
-            return response()->json([
-                'message' => 'Failed to upload to SFTP server. Please check your credentials and try again.',
-            ], 500);
-        }
+        return response()->json([
+            'data' => new NaldaCsvUploadResource($csvUpload),
+        ], 201);
     }
 
     /**
@@ -117,45 +103,5 @@ class NaldaController extends Controller
         } finally {
             $sftp?->disconnect();
         }
-    }
-
-    private function uploadToSftp(
-        string $host,
-        int $port,
-        string $username,
-        string $password,
-        NaldaCsvType $csvType,
-        string $localFilePath,
-        string $originalFilename
-    ): string {
-        $sftp = new SFTP($host, $port, 30); // 30 second connection timeout
-
-        try {
-            if (! $sftp->login($username, $password)) {
-                throw new \RuntimeException('SFTP authentication failed.');
-            }
-
-            $remoteFolder = $csvType->getSftpFolder();
-            $remotePath = rtrim($remoteFolder, '/').'/'.$originalFilename;
-
-            if ($remoteFolder !== '/') {
-                $sftp->mkdir($remoteFolder, -1, true);
-            }
-
-            if (! $sftp->put($remotePath, $localFilePath, SFTP::SOURCE_LOCAL_FILE)) {
-                throw new \RuntimeException('Failed to upload file.');
-            }
-
-            return $remotePath;
-        } finally {
-            $sftp->disconnect();
-        }
-    }
-
-    private function generateFilename(NaldaCsvUpload $upload, string $originalFilename): string
-    {
-        $extension = pathinfo($originalFilename, PATHINFO_EXTENSION) ?: 'csv';
-
-        return sprintf('%s_%s_%d.%s', $upload->csv_type->value, now()->format('Ymd_His'), $upload->id, $extension);
     }
 }

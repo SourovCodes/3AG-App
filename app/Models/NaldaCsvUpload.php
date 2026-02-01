@@ -48,6 +48,7 @@ class NaldaCsvUpload extends Model implements HasMedia
     {
         $this->addMediaCollection('csv')
             ->singleFile()
+            ->useDisk('nalda-csv')
             ->acceptsMimeTypes(['text/csv', 'text/plain', 'application/csv', 'application/vnd.ms-excel']);
     }
 
