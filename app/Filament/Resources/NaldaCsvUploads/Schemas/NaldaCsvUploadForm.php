@@ -39,6 +39,8 @@ class NaldaCsvUploadForm
                             ->collection('csv')
                             ->acceptedFileTypes(['text/csv', 'text/plain', 'application/csv', 'application/vnd.ms-excel'])
                             ->maxSize(10240)
+                            ->downloadable()
+                            ->openable()
                             ->helperText('Upload a CSV file (max 10MB)'),
                     ]),
                 Section::make('SFTP Configuration')

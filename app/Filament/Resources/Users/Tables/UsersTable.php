@@ -46,8 +46,7 @@ class UsersTable
                     ->icon('heroicon-o-credit-card'),
                 TextColumn::make('pm_last_four')
                     ->label('Payment Method')
-                    ->formatStateUsing(fn (?string $state, $record): ?string => 
-                        $state ? "{$record->pm_type} •••• {$state}" : null
+                    ->formatStateUsing(fn (?string $state, $record): ?string => $state ? "{$record->pm_type} •••• {$state}" : null
                     )
                     ->placeholder('No card')
                     ->toggleable(),

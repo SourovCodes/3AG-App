@@ -67,7 +67,7 @@ class ProductSeeder extends Seeder
             ['name' => 'Team', 'domain_limit' => 5, 'monthly' => 149, 'yearly' => 999],
             ['name' => 'Enterprise', 'domain_limit' => null, 'monthly' => 299, 'yearly' => 1999],
         ]);
-  
+
         // Additional products using realistic data
         $additionalProducts = [
             // Plugins
