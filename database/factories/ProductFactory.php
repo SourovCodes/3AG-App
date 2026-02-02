@@ -25,8 +25,6 @@ class ProductFactory extends Factory
             'slug' => Str::slug($name),
             'description' => fake()->paragraph(),
             'type' => fake()->randomElement(ProductType::cases()),
-            'version' => fake()->semver(),
-            'download_url' => fake()->url(),
             'is_active' => true,
             'sort_order' => fake()->numberBetween(1, 100),
         ];

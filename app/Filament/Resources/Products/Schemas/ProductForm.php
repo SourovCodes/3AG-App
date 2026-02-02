@@ -36,7 +36,7 @@ class ProductForm
                             ->rows(3)
                             ->columnSpanFull(),
                     ]),
-                Section::make('Type & Version')
+                Section::make('Type & Settings')
                     ->schema([
                         Grid::make(2)
                             ->schema([
@@ -44,28 +44,14 @@ class ProductForm
                                     ->options(ProductType::class)
                                     ->required()
                                     ->native(false),
-                                TextInput::make('version')
-                                    ->maxLength(255)
-                                    ->placeholder('1.0.0'),
-                            ]),
-                    ]),
-                Section::make('Download & Settings')
-                    ->schema([
-                        TextInput::make('download_url')
-                            ->url()
-                            ->maxLength(255)
-                            ->placeholder('https://example.com/download/product.zip')
-                            ->columnSpanFull(),
-                        Grid::make(2)
-                            ->schema([
                                 Toggle::make('is_active')
                                     ->default(true)
                                     ->inline(false),
-                                TextInput::make('sort_order')
-                                    ->numeric()
-                                    ->default(0)
-                                    ->minValue(0),
                             ]),
+                        TextInput::make('sort_order')
+                            ->numeric()
+                            ->default(0)
+                            ->minValue(0),
                     ]),
             ]);
     }

@@ -16,8 +16,6 @@ class Product extends Model
         'slug',
         'description',
         'type',
-        'version',
-        'download_url',
         'is_active',
         'sort_order',
     ];

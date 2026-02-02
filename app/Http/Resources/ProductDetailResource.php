@@ -23,7 +23,6 @@ class ProductDetailResource extends JsonResource
             'description' => $this->description,
             'type' => $this->type->value,
             'type_label' => $this->type->getLabel(),
-            'version' => $this->version,
             'packages' => PackageResource::collection($this->activePackages)->resolve(),
         ];
     }

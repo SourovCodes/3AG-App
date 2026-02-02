@@ -25,9 +25,6 @@ class ProductsTable
                 TextColumn::make('type')
                     ->badge()
                     ->sortable(),
-                TextColumn::make('version')
-                    ->searchable()
-                    ->placeholder('N/A'),
                 TextColumn::make('packages_count')
                     ->counts('packages')
                     ->label('Packages')

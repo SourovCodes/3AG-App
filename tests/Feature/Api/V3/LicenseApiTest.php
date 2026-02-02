@@ -8,7 +8,7 @@ use App\Models\Product;
 use App\Models\User;
 
 beforeEach(function () {
-    $this->product = Product::factory()->create(['slug' => 'test-plugin', 'version' => '1.0.0']);
+    $this->product = Product::factory()->create(['slug' => 'test-plugin']);
     $this->package = Package::factory()->create(['product_id' => $this->product->id, 'domain_limit' => 3]);
     $this->user = User::factory()->create();
     $this->license = License::factory()->active()->create([

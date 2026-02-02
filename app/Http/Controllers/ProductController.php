@@ -34,7 +34,6 @@ class ProductController extends Controller
                 'description' => $product->description,
                 'type' => $product->type->value,
                 'type_label' => $product->type->getLabel(),
-                'version' => $product->version,
             ]);
 
         return Inertia::render('products/index', [
