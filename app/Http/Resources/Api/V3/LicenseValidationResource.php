@@ -16,6 +16,8 @@ class LicenseValidationResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'valid' => $this->isActive(),
+            'status' => $this->status->value,
             'expires_at' => $this->expires_at?->toIso8601String(),
             'activations' => [
                 'limit' => $this->domain_limit,
