@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Api\V3\LicenseController;
 use App\Http\Controllers\Api\V3\NaldaController;
-use App\Http\Controllers\Api\V3\UpdateController;
 use App\Http\Middleware\ValidateActiveLicense;
 use Illuminate\Support\Facades\Route;
 
@@ -38,8 +37,4 @@ Route::prefix('v3')->name('api.v3.')->middleware(['throttle:api'])->group(functi
             ->middleware('throttle:30,1') // 30 validation attempts per minute
             ->name('sftp-validate');
     });
-
-    Route::post('/update/check', [UpdateController::class, 'check'])
-        ->middleware([ValidateActiveLicense::class])
-        ->name('update.check');
 });
