@@ -15,7 +15,6 @@ use Filament\GlobalSearch\GlobalSearchResult;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
-use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\FontWeight;
@@ -97,10 +96,11 @@ class UserResource extends Resource
     public static function infolist(Schema $schema): Schema
     {
         return $schema
+            ->columns(3)
             ->components([
                 Section::make('Account Information')
                     ->icon(Heroicon::User)
-                    ->columns(3)
+                    ->columnSpan(1)
                     ->components([
                         TextEntry::make('name')
                             ->weight(FontWeight::Bold),
@@ -113,47 +113,46 @@ class UserResource extends Resource
                             ->trueIcon(Heroicon::CheckBadge)
                             ->falseIcon(Heroicon::XCircle),
                     ]),
-                Grid::make(2)
-                    ->schema([
-                        Section::make('Subscription & Billing')
-                            ->icon(Heroicon::CreditCard)
-                            ->components([
-                                TextEntry::make('stripe_id')
-                                    ->label('Stripe Customer ID')
-                                    ->copyable()
-                                    ->placeholder('No Stripe account')
-                                    ->icon(Heroicon::CreditCard),
-                                TextEntry::make('pm_type')
-                                    ->label('Payment Method')
-                                    ->formatStateUsing(fn ($state, $record) => $state && $record->pm_last_four
-                                        ? ucfirst($state).' •••• '.$record->pm_last_four
-                                        : null
-                                    )
-                                    ->placeholder('No payment method'),
-                                TextEntry::make('trial_ends_at')
-                                    ->label('Trial Ends')
-                                    ->dateTime()
-                                    ->placeholder('No trial')
-                                    ->badge()
-                                    ->color(fn ($state) => $state && $state->isFuture() ? 'warning' : 'gray'),
-                            ]),
-                        Section::make('Statistics')
-                            ->icon(Heroicon::ChartBar)
-                            ->components([
-                                TextEntry::make('licenses_count')
-                                    ->label('Total Licenses')
-                                    ->state(fn ($record) => $record->licenses()->count())
-                                    ->badge()
-                                    ->color('info'),
-                                TextEntry::make('active_licenses_count')
-                                    ->label('Active Licenses')
-                                    ->state(fn ($record) => $record->licenses()->where('status', 'active')->count())
-                                    ->badge()
-                                    ->color('success'),
-                                TextEntry::make('created_at')
-                                    ->label('Member Since')
-                                    ->dateTime(),
-                            ]),
+                Section::make('Subscription & Billing')
+                    ->icon(Heroicon::CreditCard)
+                    ->columnSpan(1)
+                    ->components([
+                        TextEntry::make('stripe_id')
+                            ->label('Stripe Customer ID')
+                            ->copyable()
+                            ->placeholder('No Stripe account')
+                            ->icon(Heroicon::CreditCard),
+                        TextEntry::make('pm_type')
+                            ->label('Payment Method')
+                            ->formatStateUsing(fn ($state, $record) => $state && $record->pm_last_four
+                                ? ucfirst($state).' •••• '.$record->pm_last_four
+                                : null
+                            )
+                            ->placeholder('No payment method'),
+                        TextEntry::make('trial_ends_at')
+                            ->label('Trial Ends')
+                            ->dateTime()
+                            ->placeholder('No trial')
+                            ->badge()
+                            ->color(fn ($state) => $state && $state->isFuture() ? 'warning' : 'gray'),
+                    ]),
+                Section::make('Statistics')
+                    ->icon(Heroicon::ChartBar)
+                    ->columnSpan(1)
+                    ->components([
+                        TextEntry::make('licenses_count')
+                            ->label('Total Licenses')
+                            ->state(fn ($record) => $record->licenses()->count())
+                            ->badge()
+                            ->color('info'),
+                        TextEntry::make('active_licenses_count')
+                            ->label('Active Licenses')
+                            ->state(fn ($record) => $record->licenses()->where('status', 'active')->count())
+                            ->badge()
+                            ->color('success'),
+                        TextEntry::make('created_at')
+                            ->label('Member Since')
+                            ->dateTime(),
                     ]),
             ]);
     }
