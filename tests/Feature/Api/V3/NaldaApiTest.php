@@ -16,25 +16,51 @@ describe('License Validation Middleware', function () {
     it('returns error when license_key is missing', function () {
         $response = $this->postJson('/api/v3/nalda/csv-upload', [
             'domain' => 'example.com',
+            'product_slug' => 'some-product',
         ]);
 
         $response->assertStatus(400)
-            ->assertJsonPath('message', 'License key and domain are required.');
+            ->assertJsonPath('message', 'License key, domain, and product slug are required.');
     });
 
     it('returns error when domain is missing', function () {
         $response = $this->postJson('/api/v3/nalda/csv-upload', [
             'license_key' => 'TEST-1234-5678-ABCD',
+            'product_slug' => 'some-product',
         ]);
 
         $response->assertStatus(400)
-            ->assertJsonPath('message', 'License key and domain are required.');
+            ->assertJsonPath('message', 'License key, domain, and product slug are required.');
+    });
+
+    it('returns error when product_slug is missing', function () {
+        $response = $this->postJson('/api/v3/nalda/csv-upload', [
+            'license_key' => 'TEST-1234-5678-ABCD',
+            'domain' => 'example.com',
+        ]);
+
+        $response->assertStatus(400)
+            ->assertJsonPath('message', 'License key, domain, and product slug are required.');
     });
 
     it('returns error for invalid license key', function () {
         $response = $this->postJson('/api/v3/nalda/csv-upload', [
             'license_key' => 'INVALID-KEY',
             'domain' => 'example.com',
+            'product_slug' => 'some-product',
+        ]);
+
+        $response->assertStatus(401)
+            ->assertJsonPath('message', 'Invalid license key.');
+    });
+
+    it('returns error for license not matching product', function () {
+        $license = License::factory()->active()->create(['expires_at' => now()->addYear()]);
+
+        $response = $this->postJson('/api/v3/nalda/csv-upload', [
+            'license_key' => $license->license_key,
+            'domain' => 'example.com',
+            'product_slug' => 'wrong-product',
         ]);
 
         $response->assertStatus(401)
@@ -47,6 +73,7 @@ describe('License Validation Middleware', function () {
         $response = $this->postJson('/api/v3/nalda/csv-upload', [
             'license_key' => $license->license_key,
             'domain' => 'example.com',
+            'product_slug' => $license->product->slug,
         ]);
 
         $response->assertStatus(403)
@@ -62,6 +89,7 @@ describe('License Validation Middleware', function () {
         $response = $this->postJson('/api/v3/nalda/csv-upload', [
             'license_key' => $license->license_key,
             'domain' => 'example.com',
+            'product_slug' => $license->product->slug,
         ]);
 
         $response->assertStatus(403)
@@ -76,6 +104,7 @@ describe('License Validation Middleware', function () {
         $response = $this->postJson('/api/v3/nalda/csv-upload', [
             'license_key' => $license->license_key,
             'domain' => 'example.com',
+            'product_slug' => $license->product->slug,
         ]);
 
         $response->assertStatus(403)
@@ -95,6 +124,7 @@ describe('License Validation Middleware', function () {
         $response = $this->postJson('/api/v3/nalda/csv-upload', [
             'license_key' => $license->license_key,
             'domain' => 'example.com',
+            'product_slug' => $license->product->slug,
         ]);
 
         $response->assertStatus(403)
@@ -113,6 +143,7 @@ describe('CSV Upload Endpoint', function () {
         $response = $this->postJson('/api/v3/nalda/csv-upload', [
             'license_key' => $license->license_key,
             'domain' => 'example.com',
+            'product_slug' => $license->product->slug,
         ]);
 
         $response->assertStatus(422)
@@ -129,6 +160,7 @@ describe('CSV Upload Endpoint', function () {
         $response = $this->postJson('/api/v3/nalda/csv-upload', [
             'license_key' => $license->license_key,
             'domain' => 'example.com',
+            'product_slug' => $license->product->slug,
             'csv_type' => 'orders',
             'sftp_host' => 'sftp.evil.com',
             'sftp_username' => 'user',
@@ -150,6 +182,7 @@ describe('CSV Upload Endpoint', function () {
         $response = $this->postJson('/api/v3/nalda/csv-upload', [
             'license_key' => $license->license_key,
             'domain' => 'example.com',
+            'product_slug' => $license->product->slug,
             'csv_type' => 'invalid',
             'sftp_host' => 'sftp.nalda.com',
             'sftp_username' => 'user',
@@ -171,6 +204,7 @@ describe('CSV Upload Endpoint', function () {
         $response = $this->postJson('/api/v3/nalda/csv-upload', [
             'license_key' => $license->license_key,
             'domain' => 'example.com',
+            'product_slug' => $license->product->slug,
             'csv_type' => 'orders',
             'sftp_host' => 'sftp.nalda.com',
             'sftp_username' => 'user',
@@ -192,6 +226,7 @@ describe('CSV Upload Endpoint', function () {
         $response = $this->postJson('/api/v3/nalda/csv-upload', [
             'license_key' => $license->license_key,
             'domain' => 'www.example.com',
+            'product_slug' => $license->product->slug,
         ]);
 
         $response->assertStatus(422);
@@ -207,6 +242,7 @@ describe('CSV Upload Endpoint', function () {
         $response = $this->postJson('/api/v3/nalda/csv-upload', [
             'license_key' => $license->license_key,
             'domain' => 'https://example.com',
+            'product_slug' => $license->product->slug,
         ]);
 
         $response->assertStatus(422);
@@ -234,6 +270,7 @@ describe('CSV Upload List Endpoint', function () {
         $response = $this->getJson('/api/v3/nalda/csv-upload/list?'.http_build_query([
             'license_key' => $license->license_key,
             'domain' => 'example.com',
+            'product_slug' => $license->product->slug,
         ]));
 
         $response->assertSuccessful()
@@ -272,6 +309,7 @@ describe('CSV Upload List Endpoint', function () {
         $response = $this->getJson('/api/v3/nalda/csv-upload/list?'.http_build_query([
             'license_key' => $license->license_key,
             'domain' => 'example.com',
+            'product_slug' => $license->product->slug,
             'per_page' => 5,
         ]));
 
@@ -291,6 +329,7 @@ describe('CSV Upload List Endpoint', function () {
         $response = $this->getJson('/api/v3/nalda/csv-upload/list?'.http_build_query([
             'license_key' => $license->license_key,
             'domain' => 'example.com',
+            'product_slug' => $license->product->slug,
         ]));
 
         $response->assertSuccessful()
@@ -310,6 +349,7 @@ describe('SFTP Validate Endpoint', function () {
         $response = $this->postJson('/api/v3/nalda/sftp-validate', [
             'license_key' => $license->license_key,
             'domain' => 'example.com',
+            'product_slug' => $license->product->slug,
         ]);
 
         $response->assertStatus(422)
@@ -326,6 +366,7 @@ describe('SFTP Validate Endpoint', function () {
         $response = $this->postJson('/api/v3/nalda/sftp-validate', [
             'license_key' => $license->license_key,
             'domain' => 'example.com',
+            'product_slug' => $license->product->slug,
             'sftp_host' => 'sftp.evil.com',
             'sftp_username' => 'user',
             'sftp_password' => 'pass',
@@ -345,6 +386,7 @@ describe('SFTP Validate Endpoint', function () {
         $response = $this->postJson('/api/v3/nalda/sftp-validate', [
             'license_key' => $license->license_key,
             'domain' => 'example.com',
+            'product_slug' => $license->product->slug,
             'sftp_host' => 'sftp.nalda.com',
             'sftp_port' => 70000,
             'sftp_username' => 'user',

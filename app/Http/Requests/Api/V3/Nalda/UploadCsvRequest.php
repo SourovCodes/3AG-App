@@ -20,6 +20,7 @@ class UploadCsvRequest extends FormRequest
     {
         return [
             'license_key' => ['required', 'string', 'max:255'],
+            'product_slug' => ['required', 'string', 'max:255'],
             'domain' => ['required', 'string', 'max:255'],
             'csv_type' => ['required', 'string', Rule::enum(NaldaCsvType::class)],
             'sftp_host' => ['required', 'string', 'max:255', 'regex:/.*\.nalda\.com$/i'],
@@ -37,6 +38,7 @@ class UploadCsvRequest extends FormRequest
     {
         return [
             'license_key.required' => 'A license key is required.',
+            'product_slug.required' => 'A product slug is required.',
             'domain.required' => 'A domain is required.',
             'csv_type.required' => 'CSV type is required.',
             'csv_type.enum' => 'CSV type must be either "orders" or "products".',

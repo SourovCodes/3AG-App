@@ -18,6 +18,7 @@ class ValidateSftpRequest extends FormRequest
     {
         return [
             'license_key' => ['required', 'string', 'max:255'],
+            'product_slug' => ['required', 'string', 'max:255'],
             'domain' => ['required', 'string', 'max:255'],
             'sftp_host' => ['required', 'string', 'max:255', 'regex:/.*\.nalda\.com$/i'],
             'sftp_port' => ['nullable', 'integer', 'min:1', 'max:65535'],
@@ -33,6 +34,7 @@ class ValidateSftpRequest extends FormRequest
     {
         return [
             'license_key.required' => 'A license key is required.',
+            'product_slug.required' => 'A product slug is required.',
             'domain.required' => 'A domain is required.',
             'sftp_host.required' => 'SFTP hostname is required.',
             'sftp_host.regex' => 'SFTP hostname must be a *.nalda.com domain.',

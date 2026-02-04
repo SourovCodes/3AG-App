@@ -22,13 +22,15 @@ class ValidateActiveLicense
     {
         $licenseKey = $request->input('license_key');
         $domain = $request->input('domain');
+        $productSlug = $request->input('product_slug');
 
-        if (empty($licenseKey) || empty($domain)) {
-            return response()->json(['message' => 'License key and domain are required.'], 400);
+        if (empty($licenseKey) || empty($domain) || empty($productSlug)) {
+            return response()->json(['message' => 'License key, domain, and product slug are required.'], 400);
         }
 
         $license = License::query()
             ->where('license_key', $licenseKey)
+            ->whereHas('product', fn ($q) => $q->where('slug', $productSlug)->where('is_active', true))
             ->first();
 
         if (! $license) {
