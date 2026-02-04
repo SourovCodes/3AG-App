@@ -35,7 +35,13 @@ class PackageForm
                                     ->placeholder('Basic, Pro, Agency'),
                                 TextInput::make('slug')
                                     ->required()
-                                    ->maxLength(255),
+                                    ->maxLength(255)
+                                    ->unique(
+                                        table: 'packages',
+                                        column: 'slug',
+                                        ignoreRecord: true,
+                                        modifyRuleUsing: fn ($rule, $get) => $rule->where('product_id', $get('product_id'))
+                                    ),
                             ]),
                         Textarea::make('description')
                             ->rows(2)

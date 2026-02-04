@@ -22,10 +22,12 @@ class LicenseFactory extends Factory
      */
     public function definition(): array
     {
+        $product = Product::factory()->create();
+
         return [
             'user_id' => User::factory(),
-            'product_id' => Product::factory(),
-            'package_id' => Package::factory(),
+            'product_id' => $product->id,
+            'package_id' => Package::factory()->create(['product_id' => $product->id])->id,
             'license_key' => strtoupper(Str::random(8).'-'.Str::random(8).'-'.Str::random(8).'-'.Str::random(8)),
             'domain_limit' => fake()->randomElement([1, 3, 5, 10, null]),
             'status' => LicenseStatus::Active,

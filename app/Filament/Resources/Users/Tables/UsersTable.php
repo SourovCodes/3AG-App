@@ -2,10 +2,13 @@
 
 namespace App\Filament\Resources\Users\Tables;
 
+use App\Filament\Resources\Users\UserResource;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Support\Enums\FontWeight;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TernaryFilter;
@@ -20,20 +23,21 @@ class UsersTable
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable()
-                    ->weight(FontWeight::SemiBold),
+                    ->weight(FontWeight::SemiBold)
+                    ->description(fn ($record) => $record->licenses()->count().' licenses'),
                 TextColumn::make('email')
                     ->label('Email Address')
                     ->searchable()
                     ->sortable()
                     ->copyable()
                     ->copyMessage('Email copied')
-                    ->icon('heroicon-o-envelope'),
+                    ->icon(Heroicon::Envelope),
                 IconColumn::make('email_verified_at')
                     ->label('Verified')
                     ->boolean()
                     ->sortable()
-                    ->trueIcon('heroicon-o-check-badge')
-                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueIcon(Heroicon::CheckBadge)
+                    ->falseIcon(Heroicon::XCircle)
                     ->trueColor('success')
                     ->falseColor('gray'),
                 TextColumn::make('stripe_id')
@@ -43,7 +47,7 @@ class UsersTable
                     ->placeholder('No subscription')
                     ->badge()
                     ->color('info')
-                    ->icon('heroicon-o-credit-card'),
+                    ->icon(Heroicon::CreditCard),
                 TextColumn::make('pm_last_four')
                     ->label('Payment Method')
                     ->formatStateUsing(fn (?string $state, $record): ?string => $state ? "{$record->pm_type} •••• {$state}" : null
@@ -81,13 +85,18 @@ class UsersTable
                     ),
             ])
             ->recordActions([
-                EditAction::make(),
+                ViewAction::make()
+                    ->icon(Heroicon::Eye),
+                EditAction::make()
+                    ->icon(Heroicon::Pencil),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
             ])
-            ->defaultSort('created_at', 'desc');
+            ->defaultSort('created_at', 'desc')
+            ->striped()
+            ->recordUrl(fn ($record): string => UserResource::getUrl('view', ['record' => $record]));
     }
 }

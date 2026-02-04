@@ -22,7 +22,7 @@ class LicenseActivationForm
                 TextInput::make('user_agent'),
                 DateTimePicker::make('last_checked_at'),
                 DateTimePicker::make('activated_at')
-                    ->required(),
+                    ->default(now()),
             ]);
     }
 }
